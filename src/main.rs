@@ -10,7 +10,9 @@ use bevy::prelude::*;
 
 fn main() {
     App::new()
+        // Bevy Plugins and Basic Startup
         .add_plugins(DefaultPlugins)
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .add_systems(Startup, (spawn_camera, spawn_player_system))
         .add_systems(Update, (move_player_system, player_weapons_system))
         .add_systems(Update, move_projectiles)
