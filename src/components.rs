@@ -28,6 +28,7 @@ pub struct WeaponSystem {
     pub cooldown: f32,
     pub sprite_path: String,
     pub proj_type: ProjectileType,
+    pub cd_timer: Timer,
 }
 
 #[derive(Clone)]

@@ -20,11 +20,12 @@ pub fn spawn_player_system(
             angle: f32::to_radians(90.0),
             turn_speed: f32::to_radians(1.25),
             cannon: WeaponSystem {
-                speed: 800.0,
+                speed: 400.0,
                 fuel: 100.0,
-                proj_type: ProjectileType::Laser,
-                sprite_path: "sprites/projectiles/laserBlue01.png".to_string(),
+                proj_type: ProjectileType::Missile,
+                sprite_path: "sprites/projectiles/spaceMissiles_001.png".to_string(),
                 cooldown: 0.5,
+                cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
             },
         },
     ));
@@ -54,13 +55,13 @@ pub fn move_player_system(
 pub fn player_weapons_system(
     mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
-    player_query: Query<(&Ship, &Transform), With<Player>>,
+    mut player_query: Query<(&mut Ship, &Transform), With<Player>>,
     asset_server: Res<AssetServer>,
 ) {
-    let (ship, transform) = player_query.get_single().unwrap();
+    let (mut ship, transform) = player_query.get_single_mut().unwrap();
 
     // Fire Primary Cannon
-    if keyboard_input.pressed(KeyCode::Space) {
+    if keyboard_input.pressed(KeyCode::Space) && ship.cannon.cd_timer.finished() {
         let mut projectile_transform =
             Transform::from_xyz(transform.translation.x, transform.translation.y, 0.0);
         projectile_transform.rotation = transform.rotation.clone();
@@ -77,5 +78,6 @@ pub fn player_weapons_system(
                 fuel: ship.cannon.fuel,
             },
         ));
+        ship.cannon.cd_timer.reset()
     }
 }
