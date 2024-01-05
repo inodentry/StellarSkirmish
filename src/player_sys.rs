@@ -1,8 +1,8 @@
+use crate::components::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use crate::components::*;
 
-pub fn spawn_player(
+pub fn spawn_player_system(
     mut commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
@@ -15,19 +15,20 @@ pub fn spawn_player(
             ..default()
         },
         Player {},
-        Ship {speed: 400.0, angle: f32::to_radians(90.0), turn_speed: f32::to_radians(1.25)}
+        Ship {
+            speed: 400.0,
+            angle: f32::to_radians(90.0),
+            turn_speed: f32::to_radians(1.25),
+        },
     ));
 }
 
-pub fn player_movement(
+pub fn move_player_system(
     keyboard_input: Res<Input<KeyCode>>,
-    mut player_query: Query<(&mut Ship, &mut Transform), With<Player>>,
+    mut player_query: Query<(&Ship, &mut Transform), With<Player>>,
     time: Res<Time>,
 ) {
-    if let Ok((mut ship, mut transform)) = player_query.get_single_mut() {
-
-        let mut direction = Vec3::ZERO;
-
+    if let Ok((ship, mut transform)) = player_query.get_single_mut() {
         if keyboard_input.pressed(KeyCode::Up) || keyboard_input.pressed(KeyCode::W) {
             let move_dir = transform.up() * ship.speed * time.delta_seconds();
             transform.translation += move_dir;
@@ -42,11 +43,32 @@ pub fn player_movement(
             transform.rotate_z(-ship.turn_speed);
             println!("Angle: {:?}", transform.rotation);
         }
+    }
+}
 
-        if direction.length() > 0.0 {
-            direction = direction.normalize();
-        }
+pub fn player_weapons_system(
+    mut commands: Commands,
+    keyboard_input: Res<Input<KeyCode>>,
+    player_query: Query<&Transform, With<Player>>,
+    asset_server: Res<AssetServer>,
+) {
+    let transform = player_query.get_single().unwrap();
 
-        transform.translation += direction * ship.speed * time.delta_seconds();
+    // Fire Primary Cannon
+    if keyboard_input.pressed(KeyCode::Space) {
+        let mut projectile_transform =
+            Transform::from_xyz(transform.translation.x, transform.translation.y, 0.0);
+        projectile_transform.rotation = transform.rotation.clone();
+        commands.spawn((
+            SpriteBundle {
+                transform: projectile_transform,
+                texture: asset_server.load("sprites/projectiles/laserBlue01.png"),
+                ..default()
+            },
+            Projectile {
+                speed: 800.0,
+                fuel: 100.0,
+            },
+        ));
     }
 }
