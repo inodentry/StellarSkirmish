@@ -19,6 +19,13 @@ pub fn spawn_player_system(
             speed: 400.0,
             angle: f32::to_radians(90.0),
             turn_speed: f32::to_radians(1.25),
+            cannon: WeaponSystem {
+                speed: 800.0,
+                fuel: 100.0,
+                proj_type: ProjectileType::Laser,
+                sprite_path: "sprites/projectiles/laserBlue01.png".to_string(),
+                cooldown: 0.5,
+            },
         },
     ));
 }
@@ -36,12 +43,10 @@ pub fn move_player_system(
         if keyboard_input.pressed(KeyCode::Left) || keyboard_input.pressed(KeyCode::A) {
             // Using angles, so if turning left hits 360.0 degrees, it wraps around to 0.0.
             transform.rotate_z(ship.turn_speed);
-            println!("Angle: {:?}", transform.rotation);
         }
         if keyboard_input.pressed(KeyCode::Right) || keyboard_input.pressed(KeyCode::D) {
             // Using angles, so if turning right hits 0.0 degrees, it wraps around to 360.0.
             transform.rotate_z(-ship.turn_speed);
-            println!("Angle: {:?}", transform.rotation);
         }
     }
 }
@@ -49,10 +54,10 @@ pub fn move_player_system(
 pub fn player_weapons_system(
     mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
-    player_query: Query<&Transform, With<Player>>,
+    player_query: Query<(&Ship, &Transform), With<Player>>,
     asset_server: Res<AssetServer>,
 ) {
-    let transform = player_query.get_single().unwrap();
+    let (ship, transform) = player_query.get_single().unwrap();
 
     // Fire Primary Cannon
     if keyboard_input.pressed(KeyCode::Space) {
@@ -62,12 +67,14 @@ pub fn player_weapons_system(
         commands.spawn((
             SpriteBundle {
                 transform: projectile_transform,
-                texture: asset_server.load("sprites/projectiles/laserBlue01.png"),
+                texture: asset_server.load(ship.cannon.sprite_path.clone()),
                 ..default()
             },
+            // The Projectile is granted value's from the ship's Cannon component.
+            // This depends on the type of projectile the cannon fires.
             Projectile {
-                speed: 800.0,
-                fuel: 100.0,
+                speed: ship.cannon.speed,
+                fuel: ship.cannon.fuel,
             },
         ));
     }
