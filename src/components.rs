@@ -48,12 +48,20 @@ pub struct Projectile {
     pub speed: f32,
     // "fuel" decrements each tick, and the projectile is destroyed when it hits 0
     pub fuel: f32,
+    pub projectile_type: ProjectileType,
+    pub damage_type: DamageType,
+    pub damage_value: f32,
 }
 
+/// Entities with the NoPhase component are capable of colliding with both Phase and NoPhase entities.
 #[derive(Component)]
-pub struct Phase {
+pub struct NoPhase {
     pub cd_timer: Timer,
 }
+
+/// Entities with the Phase component can ONLY collide with NoPhase entities, NOT with other Phase entities.
+#[derive(Component)]
+pub struct Phase {}
 
 /// Describes the shape (circle or square) of a collision box and the value (length or radius) of it.
 #[derive(Component)]
@@ -70,6 +78,7 @@ pub enum Shape {
     Square,
 }
 
+#[derive(Clone, PartialEq)]
 pub enum DamageType {
     Kinetic,
     Radiant,

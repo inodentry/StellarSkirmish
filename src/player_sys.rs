@@ -37,8 +37,12 @@ pub fn player_weapons_system(
 
     // Fire Primary Weapon
     if keyboard_input.pressed(KeyCode::Space) && ship.primary_weapon.cd_timer.finished() {
+        // The projectile's transform should originate from the firing ship.
         let mut projectile_transform =
             Transform::from_xyz(transform.translation.x, transform.translation.y, 0.0);
+        // Modify it a little so that it originates from just in front of the firing ship.
+        projectile_transform.translation += transform.up() * 75.0;
+        // Ensure that it is rotated in a way that aligns with the firing ship.
         projectile_transform.rotation = transform.rotation.clone();
         commands.spawn((
             SpriteBundle {
@@ -51,6 +55,14 @@ pub fn player_weapons_system(
             Projectile {
                 speed: ship.primary_weapon.speed,
                 fuel: ship.primary_weapon.fuel,
+                projectile_type: ProjectileType::Missile,
+                damage_type: DamageType::Kinetic,
+                damage_value: 20.0,
+            },
+            Phase {},
+            Mass { value: 1.0 },
+            Velocity {
+                velocity: transform.up() * ship.primary_weapon.speed,
             },
         ));
         ship.primary_weapon.cd_timer.reset()
@@ -59,6 +71,7 @@ pub fn player_weapons_system(
     if mouse_input.pressed(MouseButton::Left) && ship.secondary_weapon.cd_timer.finished() {
         let mut projectile_transform =
             Transform::from_xyz(transform.translation.x, transform.translation.y, 0.0);
+        projectile_transform.translation += transform.up() * 75.0;
         projectile_transform.rotation = transform.rotation.clone();
         commands.spawn((
             SpriteBundle {
@@ -71,6 +84,13 @@ pub fn player_weapons_system(
             Projectile {
                 speed: ship.secondary_weapon.speed,
                 fuel: ship.secondary_weapon.fuel,
+                projectile_type: ProjectileType::Laser,
+                damage_type: DamageType::Radiant,
+                damage_value: 5.0,
+            },
+            Phase {},
+            Velocity {
+                velocity: transform.up() * ship.secondary_weapon.speed,
             },
         ));
         ship.secondary_weapon.cd_timer.reset()

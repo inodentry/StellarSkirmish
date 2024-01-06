@@ -32,6 +32,7 @@ fn main() {
                 confine_player_movement,
                 update_player_velocity,
                 despawn_dead,
+                check_projectile_collisions,
             ),
         )
         .add_systems(
@@ -39,7 +40,7 @@ fn main() {
             (
                 move_projectiles_system,
                 update_velocities_system,
-                check_collisions_system,
+                check_nophase_collisions,
                 inflict_damage_system,
             ),
         )
@@ -49,7 +50,7 @@ fn main() {
 
 fn tick_timers(
     mut ship_query: Query<&mut Ship>,
-    mut phase_query: Query<&mut Phase>,
+    mut phase_query: Query<&mut NoPhase>,
     time: Res<Time>,
 ) {
     for mut ship in ship_query.iter_mut() {

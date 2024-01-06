@@ -3,7 +3,10 @@ use crate::events::*;
 use bevy::prelude::*;
 
 pub fn update_velocities_system(
-    mut velocity_query: Query<(&mut Velocity, &mut Transform), With<Velocity>>,
+    mut velocity_query: Query<
+        (&mut Velocity, &mut Transform),
+        (With<Velocity>, Without<Projectile>),
+    >,
 ) {
     for (mut velocity, mut transform) in velocity_query.iter_mut() {
         transform.translation += velocity.velocity;
@@ -18,11 +21,14 @@ pub fn update_velocities_system(
 
 pub fn move_projectiles_system(
     mut commands: Commands,
-    mut proj_query: Query<(Entity, &mut Projectile, &mut Transform)>,
+    mut projectile_query: Query<
+        (Entity, &mut Projectile, &mut Transform, &Velocity),
+        With<Projectile>,
+    >,
     time: Res<Time>,
 ) {
-    for (entity, mut projectile, mut transform) in proj_query.iter_mut() {
-        let move_dir = transform.up() * projectile.speed * time.delta_seconds();
+    for (entity, mut projectile, mut transform, vel) in projectile_query.iter_mut() {
+        let move_dir = vel.velocity * time.delta_seconds();
         transform.translation += move_dir;
         projectile.fuel -= 1.0;
         if projectile.fuel <= 0.0 {
@@ -31,7 +37,13 @@ pub fn move_projectiles_system(
     }
 }
 
-pub fn check_collisions_system(
+/// This system is responsible for checking for collisions between entity that have the NoPhase
+/// component, indicating that they cannot phase through each other. This includes things like
+/// ships and asteroids, as opposed to Phase entities. NoPhase objects can collide with anything.
+/// Phase entities can only collide with NoPhase entities. This prevents the 10,000 laser beams
+/// and missiles from needing to check for collisions with each other.
+/// The physics results of the collision are included in this system.
+pub fn check_nophase_collisions(
     mut ship_query: Query<
         (
             Entity,
@@ -39,9 +51,9 @@ pub fn check_collisions_system(
             &CollisionBox,
             &mut Velocity,
             &Mass,
-            &Phase,
+            &NoPhase,
         ),
-        (With<Phase>, With<Ship>, Without<Asteroid>),
+        (With<NoPhase>, With<Ship>, Without<Asteroid>),
     >,
     mut asteroid_query: Query<
         (
@@ -50,9 +62,9 @@ pub fn check_collisions_system(
             &CollisionBox,
             &mut Velocity,
             &Mass,
-            &mut Phase,
+            &mut NoPhase,
         ),
-        (With<Phase>, With<Asteroid>, Without<Ship>),
+        (With<NoPhase>, With<Asteroid>, Without<Ship>),
     >,
     mut damage_writer: EventWriter<DamageEvent>,
 ) {
@@ -147,6 +159,44 @@ pub fn check_collisions_system(
     }
 }
 
+pub fn check_projectile_collisions(
+    mut commands: Commands,
+    mut nophase_query: Query<
+        (Entity, &mut Transform, &CollisionBox),
+        (With<NoPhase>, Without<Phase>),
+    >,
+    mut phase_query: Query<
+        (
+            Entity,
+            &mut Transform,
+            //&CollisionBox,
+            //&mut Velocity,
+            //&Mass,
+            &Projectile,
+        ),
+        (With<Phase>, Without<NoPhase>),
+    >,
+    mut damage_writer: EventWriter<DamageEvent>,
+) {
+    for (n_e, mut n_t, n_c) in nophase_query.iter_mut() {
+        for (p_e, mut p_t, p_p) in phase_query.iter_mut() {
+            let distance = n_t.translation.distance(p_t.translation);
+            let n_radius = n_c.width_radius;
+            // Replace this with an actual collision box later!
+            let p_radius = 20.0;
+            if distance < n_radius + p_radius {
+                println!("Hit Detected!");
+                commands.entity(p_e).despawn();
+                damage_writer.send(DamageEvent {
+                    target: n_e,
+                    damage_type: p_p.damage_type.clone(),
+                    damage_value: p_p.damage_value,
+                });
+            }
+        }
+    }
+}
+
 pub fn inflict_damage_system(
     mut damage_reader: EventReader<DamageEvent>,
     mut health_query: Query<&mut Health>,
@@ -158,7 +208,11 @@ pub fn inflict_damage_system(
             ev.damage_value * KINETIC_DAMAGE_COEF
         );
         if let Ok(mut target_health) = health_query.get_mut(ev.target) {
-            target_health.value -= ev.damage_value * KINETIC_DAMAGE_COEF;
+            let mut total_damage = ev.damage_value;
+            if ev.damage_type == DamageType::Kinetic {
+                total_damage *= KINETIC_DAMAGE_COEF;
+            }
+            target_health.value -= total_damage;
             println!(
                 "Entity {:?} now has {:?} Health!",
                 ev.target, target_health.value

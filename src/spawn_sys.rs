@@ -44,7 +44,7 @@ pub fn spawn_player_system(
                 z: 0.0,
             },
         },
-        Phase {
+        NoPhase {
             cd_timer: Timer::from_seconds(0.0, TimerMode::Once),
         },
         CollisionBox {
@@ -75,7 +75,7 @@ pub fn spawn_asteroid_system(
                 ..default()
             },
             Asteroid {},
-            Phase {
+            NoPhase {
                 cd_timer: Timer::from_seconds(0.75, TimerMode::Once),
             },
             CollisionBox {
