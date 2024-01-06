@@ -44,7 +44,9 @@ pub fn spawn_player_system(
                 z: 0.0,
             },
         },
-        NoPhase {},
+        Phase {
+            cd_timer: Timer::from_seconds(0.0, TimerMode::Once),
+        },
         CollisionBox {
             shape: Shape::Circle,
             width_radius: 38.0,
@@ -73,14 +75,16 @@ pub fn spawn_asteroid_system(
                 ..default()
             },
             Asteroid {},
-            NoPhase {},
+            Phase {
+                cd_timer: Timer::from_seconds(1.0, TimerMode::Once),
+            },
             CollisionBox {
                 shape: Shape::Circle,
                 width_radius: 42.0,
                 height: 42.0,
             },
             Health { value: 20.0 },
-            Mass { value: 10.0 },
+            Mass { value: 5.0 },
             Velocity {
                 velocity: Vec3 {
                     x: 0.0,

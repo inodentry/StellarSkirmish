@@ -41,9 +41,17 @@ fn main() {
         .run();
 }
 
-fn tick_timers(mut timer_query: Query<&mut Ship>, time: Res<Time>) {
-    for mut ship in timer_query.iter_mut() {
+fn tick_timers(
+    mut ship_query: Query<&mut Ship>,
+    mut phase_query: Query<&mut Phase>,
+    time: Res<Time>,
+) {
+    for mut ship in ship_query.iter_mut() {
         ship.primary_weapon.cd_timer.tick(time.delta());
         ship.secondary_weapon.cd_timer.tick(time.delta());
+    }
+    for mut phase in phase_query.iter_mut() {
+        phase.cd_timer.tick(time.delta());
+        phase.cd_timer.tick(time.delta());
     }
 }

@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 // Global Constants
 pub const DAMPENING_FACTOR: f32 = 0.995;
-
+pub const RESTITUTION_COEF: f32 = 0.5;
 // Bevy Components
 #[derive(Component)]
 pub struct Ship {
@@ -48,7 +48,9 @@ pub struct Projectile {
 }
 
 #[derive(Component)]
-pub struct NoPhase {}
+pub struct Phase {
+    pub cd_timer: Timer,
+}
 
 /// Describes the shape (circle or square) of a collision box and the value (length or radius) of it.
 #[derive(Component)]
