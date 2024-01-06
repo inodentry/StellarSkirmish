@@ -1,4 +1,5 @@
 use crate::components::*;
+use crate::events::*;
 use bevy::prelude::*;
 
 pub fn update_velocities_system(
@@ -32,11 +33,19 @@ pub fn move_projectiles_system(
 
 pub fn check_collisions_system(
     mut ship_query: Query<
-        (&mut Transform, &CollisionBox, &mut Velocity, &Mass, &Phase),
+        (
+            Entity,
+            &mut Transform,
+            &CollisionBox,
+            &mut Velocity,
+            &Mass,
+            &Phase,
+        ),
         (With<Phase>, With<Ship>, Without<Asteroid>),
     >,
     mut asteroid_query: Query<
         (
+            Entity,
             &mut Transform,
             &CollisionBox,
             &mut Velocity,
@@ -45,9 +54,10 @@ pub fn check_collisions_system(
         ),
         (With<Phase>, With<Asteroid>, Without<Ship>),
     >,
+    mut damage_writer: EventWriter<DamageEvent>,
 ) {
-    for (mut ship_t, ship_box, mut ship_vel, ship_m, _) in ship_query.iter_mut() {
-        for (mut roid_t, roid_box, mut roid_vel, roid_m, mut roid_phase) in
+    for (ship_e, mut ship_t, ship_box, mut ship_vel, ship_m, _) in ship_query.iter_mut() {
+        for (roid_e, mut roid_t, roid_box, mut roid_vel, roid_m, mut roid_phase) in
             asteroid_query.iter_mut()
         {
             if !roid_phase.cd_timer.finished() {
@@ -64,6 +74,31 @@ pub fn check_collisions_system(
                 // Reset the phase timer. This timer prevents repeated collisions every tick.
                 roid_phase.cd_timer.reset();
                 let total_mass = ship_m.value + roid_m.value;
+
+                // Get the kinetic energy of the impact (for use in other systems, not here).
+                let ke =
+                    0.5 * total_mass * (ship_vel.velocity - roid_vel.velocity).length().powf(2.0);
+
+                // If the kinetic energy is non-trivial, send kinetic damage events.
+
+                /*
+                I wanted to make this into events. If kinetic damage occurs, send a damage event
+                that contains data on whom to target, the damage type, and the damage value.
+                However, I couldn't find any way to send a reference to the target, such as Health.
+                This would be something useful to solve later.
+                 */
+                if ke > 50.0 {
+                    damage_writer.send(DamageEvent {
+                        target: ship_e,
+                        damage_type: DamageType::Kinetic,
+                        damage_value: ke,
+                    });
+                    damage_writer.send(DamageEvent {
+                        target: roid_e,
+                        damage_type: DamageType::Kinetic,
+                        damage_value: ke,
+                    });
+                }
 
                 // Get unit vectors indicating the directionality of the collision.
                 let ship_line_of_impact = (roid_t.translation - ship_t.translation).normalize();
@@ -88,8 +123,6 @@ pub fn check_collisions_system(
                     * roid_v_proj
                     + 2.0 * RESTITUTION_COEF * ship_m.value * ship_v_proj)
                     / total_mass;
-                println!("{:?}", final_ship_v_proj);
-                println!("{:?}", final_roid_v_proj);
 
                 // Add the velocities.
                 let mut updated_ship_vel = final_ship_v_proj + ship_perp_vel;
@@ -110,6 +143,26 @@ pub fn check_collisions_system(
                 ship_vel.velocity = updated_ship_vel;
                 roid_vel.velocity = updated_roid_vel;
             }
+        }
+    }
+}
+
+pub fn inflict_damage_system(
+    mut damage_reader: EventReader<DamageEvent>,
+    mut health_query: Query<&mut Health>,
+) {
+    for ev in damage_reader.read() {
+        println!(
+            "Entity {:?} incurred {} damage!",
+            ev.target,
+            ev.damage_value * KINETIC_DAMAGE_COEF
+        );
+        if let Ok(mut target_health) = health_query.get_mut(ev.target) {
+            target_health.value -= ev.damage_value * KINETIC_DAMAGE_COEF;
+            println!(
+                "Entity {:?} now has {:?} Health!",
+                ev.target, target_health.value
+            )
         }
     }
 }

@@ -17,7 +17,7 @@ pub fn spawn_player_system(
         },
         Player {},
         Ship {
-            thrust: 10.0,
+            thrust: 100.0,
             angle: f32::to_radians(90.0),
             turn_speed: f32::to_radians(1.25),
             primary_weapon: PrimaryWeaponSystem {
@@ -53,7 +53,7 @@ pub fn spawn_player_system(
             height: 38.0,
         },
         Health { value: 100.0 },
-        Mass { value: 1.0 },
+        Mass { value: 10.0 },
     ));
 }
 
@@ -76,7 +76,7 @@ pub fn spawn_asteroid_system(
             },
             Asteroid {},
             Phase {
-                cd_timer: Timer::from_seconds(1.0, TimerMode::Once),
+                cd_timer: Timer::from_seconds(0.75, TimerMode::Once),
             },
             CollisionBox {
                 shape: Shape::Circle,

@@ -5,7 +5,10 @@ use bevy::prelude::*;
 
 // Global Constants
 pub const DAMPENING_FACTOR: f32 = 0.995;
-pub const RESTITUTION_COEF: f32 = 0.5;
+pub const RESTITUTION_COEF: f32 = 0.6;
+
+pub const KINETIC_DAMAGE_COEF: f32 = 0.01;
+
 // Bevy Components
 #[derive(Component)]
 pub struct Ship {
@@ -65,6 +68,11 @@ pub struct CollisionBox {
 pub enum Shape {
     Circle,
     Square,
+}
+
+pub enum DamageType {
+    Kinetic,
+    Radiant,
 }
 
 /// This struct is the primary, heavy-hitting weapon system of a ship.

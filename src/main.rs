@@ -1,5 +1,6 @@
 mod camera_sys;
 mod components;
+mod events;
 mod physics_sys;
 mod player_sys;
 mod spawn_sys;
@@ -7,6 +8,7 @@ mod spawn_sys;
 use bevy::prelude::*;
 use camera_sys::*;
 use components::*;
+use events::*;
 use physics_sys::*;
 use player_sys::*;
 use spawn_sys::*;
@@ -20,6 +22,8 @@ fn main() {
             Startup,
             (spawn_camera, spawn_player_system, spawn_asteroid_system),
         )
+        // Register Events
+        .add_event::<DamageEvent>()
         // Update Systems
         .add_systems(
             Update,
@@ -35,6 +39,7 @@ fn main() {
                 move_projectiles_system,
                 update_velocities_system,
                 check_collisions_system,
+                inflict_damage_system,
             ),
         )
         .add_systems(Update, tick_timers)
