@@ -31,7 +31,8 @@ fn main() {
 
 fn tick_timers(mut timer_query: Query<&mut Ship>, time: Res<Time>) {
     for mut ship in timer_query.iter_mut() {
-        ship.cannon.cd_timer.tick(time.delta());
+        ship.primary_weapon.cd_timer.tick(time.delta());
+        ship.secondary_weapon.cd_timer.tick(time.delta());
     }
 }
 
