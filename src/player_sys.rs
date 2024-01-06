@@ -30,10 +30,10 @@ pub fn player_weapons_system(
     mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
     mouse_input: Res<Input<MouseButton>>,
-    mut player_query: Query<(&mut Ship, &Transform), With<Player>>,
+    mut player_query: Query<(&mut Ship, &Transform, &Velocity), With<Player>>,
     asset_server: Res<AssetServer>,
 ) {
-    let (mut ship, transform) = player_query.get_single_mut().unwrap();
+    let (mut ship, transform, vel) = player_query.get_single_mut().unwrap();
 
     // Fire Primary Weapon
     if keyboard_input.pressed(KeyCode::Space) && ship.primary_weapon.cd_timer.finished() {
@@ -62,9 +62,16 @@ pub fn player_weapons_system(
             Phase {},
             Mass { value: 1.0 },
             Velocity {
-                velocity: transform.up() * ship.primary_weapon.speed,
+                // We need to add the ship's current velocity to the weapon's velocity. Otherwise the ship may be
+                // faster than the projectiles and immediately run into them! Plus, this is physically more correct.
+                velocity: transform.up() * (ship.primary_weapon.speed + vel.velocity.length()),
             },
         ));
+        println!(
+            "Projectile velocity: {:?}",
+            transform.up() * (ship.primary_weapon.speed + vel.velocity.length())
+        );
+        println!("Ship velocity: {:?}", vel.velocity);
         ship.primary_weapon.cd_timer.reset()
     }
     // Fire Secondary Weapon
@@ -90,7 +97,7 @@ pub fn player_weapons_system(
             },
             Phase {},
             Velocity {
-                velocity: transform.up() * ship.secondary_weapon.speed,
+                velocity: transform.up() * (ship.secondary_weapon.speed + vel.velocity.length()),
             },
         ));
         ship.secondary_weapon.cd_timer.reset()

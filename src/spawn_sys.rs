@@ -21,7 +21,7 @@ pub fn spawn_player_system(
             angle: f32::to_radians(90.0),
             turn_speed: f32::to_radians(1.25),
             primary_weapon: PrimaryWeaponSystem {
-                speed: 600.0,
+                speed: 1000.0,
                 fuel: 300.0,
                 proj_type: ProjectileType::Missile,
                 sprite_path: "sprites/projectiles/spaceMissiles_001.png".to_string(),
@@ -29,7 +29,7 @@ pub fn spawn_player_system(
                 cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
             },
             secondary_weapon: SecondaryWeaponSystem {
-                speed: 800.0,
+                speed: 1200.0,
                 fuel: 400.0,
                 proj_type: ProjectileType::Laser,
                 sprite_path: "sprites/projectiles/laserBlue04.png".to_string(),
