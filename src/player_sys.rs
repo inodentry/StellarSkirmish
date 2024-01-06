@@ -2,7 +2,7 @@ use crate::components::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
-pub fn update_velocity_system(
+pub fn update_player_velocity(
     keyboard_input: Res<Input<KeyCode>>,
     mut player_query: Query<(&Ship, &mut Velocity, &mut Transform), With<Player>>,
     time: Res<Time>,

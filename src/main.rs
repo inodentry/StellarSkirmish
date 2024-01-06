@@ -7,7 +7,7 @@ mod spawn_sys;
 use bevy::prelude::*;
 use camera_sys::*;
 use components::*;
-use physics_sys::move_projectiles;
+use physics_sys::*;
 use player_sys::*;
 use spawn_sys::*;
 
@@ -24,12 +24,19 @@ fn main() {
         .add_systems(
             Update,
             (
-                update_velocity_system,
                 player_weapons_system,
                 confine_player_movement,
+                update_player_velocity,
             ),
         )
-        .add_systems(Update, (move_projectiles, physics_sys::movement_system))
+        .add_systems(
+            Update,
+            (
+                move_projectiles_system,
+                update_velocities_system,
+                check_collisions_system,
+            ),
+        )
         .add_systems(Update, tick_timers)
         .run();
 }
