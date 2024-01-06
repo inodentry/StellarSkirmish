@@ -1,14 +1,14 @@
 mod camera_sys;
 mod components;
+mod physics_sys;
 mod player_sys;
-mod projectile_sys;
 mod spawn_sys;
 
 use bevy::prelude::*;
 use camera_sys::*;
 use components::*;
+use physics_sys::move_projectiles;
 use player_sys::*;
-use projectile_sys::*;
 use spawn_sys::*;
 
 fn main() {
@@ -29,7 +29,7 @@ fn main() {
                 confine_player_movement,
             ),
         )
-        .add_systems(Update, (move_projectiles, movement_system))
+        .add_systems(Update, (move_projectiles, physics_sys::movement_system))
         .add_systems(Update, tick_timers)
         .run();
 }
@@ -38,14 +38,5 @@ fn tick_timers(mut timer_query: Query<&mut Ship>, time: Res<Time>) {
     for mut ship in timer_query.iter_mut() {
         ship.primary_weapon.cd_timer.tick(time.delta());
         ship.secondary_weapon.cd_timer.tick(time.delta());
-    }
-}
-
-fn movement_system(mut velocity_query: Query<(&mut Velocity, &mut Transform), With<Velocity>>) {
-    for (mut velocity, mut transform) in velocity_query.iter_mut() {
-        transform.translation += velocity.velocity;
-        if velocity.velocity.length() > 0.0 {
-            velocity.velocity *= DAMPENING_FACTOR;
-        }
     }
 }

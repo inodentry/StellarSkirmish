@@ -1,6 +1,14 @@
+use crate::components::*;
 use bevy::prelude::*;
 
-use crate::components::*;
+pub fn movement_system(mut velocity_query: Query<(&mut Velocity, &mut Transform), With<Velocity>>) {
+    for (mut velocity, mut transform) in velocity_query.iter_mut() {
+        transform.translation += velocity.velocity;
+        if velocity.velocity.length() > 0.0 {
+            velocity.velocity *= DAMPENING_FACTOR;
+        }
+    }
+}
 
 pub fn move_projectiles(
     mut commands: Commands,

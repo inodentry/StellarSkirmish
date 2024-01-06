@@ -38,7 +38,23 @@ pub struct Projectile {
     pub fuel: f32,
 }
 
+#[derive(Component)]
+pub struct NoPhase {}
+
+/// Describes the shape (circle or square) of a collision box and the value (length or radius) of it.
+#[derive(Component)]
+pub struct CollisionBox {
+    pub shape: Shape,
+    pub width_radius: f32,
+    pub height: f32,
+}
+
 // Structs and Enums that are NOT Components
+
+pub enum Shape {
+    Circle,
+    Square,
+}
 
 /// This struct is the primary, heavy-hitting weapon system of a ship.
 pub struct PrimaryWeaponSystem {

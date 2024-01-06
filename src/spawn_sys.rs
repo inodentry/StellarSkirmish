@@ -45,6 +45,12 @@ pub fn spawn_player_system(
                 z: 0.0,
             },
         },
+        NoPhase {},
+        CollisionBox {
+            shape: Shape::Circle,
+            width_radius: 38.0,
+            height: 38.0,
+        },
     ));
 }
 
@@ -66,6 +72,12 @@ pub fn spawn_asteroid_system(
                 ..default()
             },
             Asteroid {},
+            NoPhase {},
+            CollisionBox {
+                shape: Shape::Circle,
+                width_radius: 42.0,
+                height: 42.0,
+            },
         ));
     }
 }
