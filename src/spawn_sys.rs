@@ -83,7 +83,7 @@ pub fn spawn_asteroid_system(
                 width_radius: 42.0,
                 height: 42.0,
             },
-            Health { value: 20.0 },
+            Health { value: 2.0 },
             Mass { value: 5.0 },
             Velocity {
                 velocity: Vec3 {
@@ -93,5 +93,14 @@ pub fn spawn_asteroid_system(
                 },
             },
         ));
+    }
+}
+
+pub fn despawn_dead(mut commands: Commands, entity_query: Query<(Entity, &Health)>) {
+    for (entity, health) in entity_query.iter() {
+        // If an entity's health has dropped to or below 0, despawn it.
+        if health.value <= 0.0 {
+            commands.entity(entity).despawn();
+        }
     }
 }

@@ -31,6 +31,7 @@ fn main() {
                 player_weapons_system,
                 confine_player_movement,
                 update_player_velocity,
+                despawn_dead,
             ),
         )
         .add_systems(
