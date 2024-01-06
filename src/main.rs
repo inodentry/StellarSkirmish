@@ -2,19 +2,24 @@ mod camera_sys;
 mod components;
 mod player_sys;
 mod projectile_sys;
+mod spawn_sys;
 
-use crate::camera_sys::spawn_camera;
-use crate::components::*;
-use crate::player_sys::*;
-use crate::projectile_sys::*;
 use bevy::prelude::*;
+use camera_sys::*;
+use components::*;
+use player_sys::*;
+use projectile_sys::*;
+use spawn_sys::*;
 
 fn main() {
     App::new()
         // Bevy Plugins and Basic Startup
         .add_plugins(DefaultPlugins)
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
-        .add_systems(Startup, (spawn_camera, spawn_player_system))
+        .add_systems(
+            Startup,
+            (spawn_camera, spawn_player_system, spawn_asteroid_system),
+        )
         // Update Systems
         .add_systems(
             Update,

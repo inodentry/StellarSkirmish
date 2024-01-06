@@ -29,6 +29,9 @@ pub struct Player {}
 pub struct Enemy {}
 
 #[derive(Component)]
+pub struct Asteroid {}
+
+#[derive(Component)]
 pub struct Projectile {
     pub speed: f32,
     // "fuel" decrements each tick, and the projectile is destroyed when it hits 0
