@@ -14,7 +14,6 @@ pub struct Ship {
     pub turn_speed: f32,
     pub primary_weapon: PrimaryWeaponSystem,
     pub secondary_weapon: SecondaryWeaponSystem,
-    pub mass: f32,
 }
 
 #[derive(Component)]
@@ -30,6 +29,16 @@ pub struct Enemy {}
 
 #[derive(Component)]
 pub struct Asteroid {}
+
+#[derive(Component)]
+pub struct Health {
+    pub value: f32,
+}
+
+#[derive(Component)]
+pub struct Mass {
+    pub value: f32,
+}
 
 #[derive(Component)]
 pub struct Projectile {

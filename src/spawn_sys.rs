@@ -18,7 +18,6 @@ pub fn spawn_player_system(
         Player {},
         Ship {
             thrust: 10.0,
-            mass: 1.0,
             angle: f32::to_radians(90.0),
             turn_speed: f32::to_radians(1.25),
             primary_weapon: PrimaryWeaponSystem {
@@ -51,6 +50,8 @@ pub fn spawn_player_system(
             width_radius: 38.0,
             height: 38.0,
         },
+        Health { value: 100.0 },
+        Mass { value: 1.0 },
     ));
 }
 
@@ -77,6 +78,15 @@ pub fn spawn_asteroid_system(
                 shape: Shape::Circle,
                 width_radius: 42.0,
                 height: 42.0,
+            },
+            Health { value: 20.0 },
+            Mass { value: 10.0 },
+            Velocity {
+                velocity: Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
             },
         ));
     }

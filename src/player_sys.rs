@@ -4,12 +4,12 @@ use bevy::window::PrimaryWindow;
 
 pub fn update_player_velocity(
     keyboard_input: Res<Input<KeyCode>>,
-    mut player_query: Query<(&Ship, &mut Velocity, &mut Transform), With<Player>>,
+    mut player_query: Query<(&Ship, &mut Velocity, &mut Transform, &Mass), With<Player>>,
     time: Res<Time>,
 ) {
-    if let Ok((ship, mut velocity, mut transform)) = player_query.get_single_mut() {
+    if let Ok((ship, mut velocity, mut transform, mass)) = player_query.get_single_mut() {
         if keyboard_input.pressed(KeyCode::Up) || keyboard_input.pressed(KeyCode::W) {
-            let acceleration = transform.up() * ship.thrust / ship.mass;
+            let acceleration = transform.up() * ship.thrust / mass.value;
             velocity.velocity += acceleration * time.delta_seconds();
             if velocity.velocity.length() > 300.0 {
                 velocity.velocity = velocity.velocity.clamp_length_max(300.0)

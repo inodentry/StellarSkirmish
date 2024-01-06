@@ -6,10 +6,10 @@ pub fn spawn_camera(
     mut commands: Commands,
     mut window_query: Query<&mut Window, With<PrimaryWindow>>,
 ) {
-    // Also setting the resolution to 1920x1080 here so we have more screen to work.
+    // Also setting the resolution to 1200x900 here so we have more screen to work.
     // Window resizing will probably get moved later on.
     let mut window = window_query.get_single_mut().unwrap();
-    window.resolution.set(1920.0, 1080.0);
+    window.resolution.set(1200.0, 900.0);
 
     commands.spawn((
         Camera2dBundle {
