@@ -16,30 +16,41 @@ pub fn spawn_player_system(
         },
         Player {},
         Ship {
-            speed: 400.0,
+            thrust: 10.0,
+            mass: 1.0,
             angle: f32::to_radians(90.0),
             turn_speed: f32::to_radians(1.25),
             cannon: WeaponSystem {
-                speed: 400.0,
-                fuel: 100.0,
+                speed: 600.0,
+                fuel: 300.0,
                 proj_type: ProjectileType::Missile,
                 sprite_path: "sprites/projectiles/spaceMissiles_001.png".to_string(),
                 cooldown: 0.5,
                 cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
             },
         },
+        Velocity {
+            velocity: Vec3 {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+        },
     ));
 }
 
-pub fn move_player_system(
+pub fn update_velocity_system(
     keyboard_input: Res<Input<KeyCode>>,
-    mut player_query: Query<(&Ship, &mut Transform), With<Player>>,
+    mut player_query: Query<(&Ship, &mut Velocity, &mut Transform), With<Player>>,
     time: Res<Time>,
 ) {
-    if let Ok((ship, mut transform)) = player_query.get_single_mut() {
+    if let Ok((ship, mut velocity, mut transform)) = player_query.get_single_mut() {
         if keyboard_input.pressed(KeyCode::Up) || keyboard_input.pressed(KeyCode::W) {
-            let move_dir = transform.up() * ship.speed * time.delta_seconds();
-            transform.translation += move_dir;
+            let acceleration = transform.up() * ship.thrust / ship.mass;
+            velocity.velocity += acceleration * time.delta_seconds();
+            if velocity.velocity.length() > 300.0 {
+                velocity.velocity = velocity.velocity.clamp_length_max(300.0)
+            }
         }
         if keyboard_input.pressed(KeyCode::Left) || keyboard_input.pressed(KeyCode::A) {
             // Using angles, so if turning left hits 360.0 degrees, it wraps around to 0.0.

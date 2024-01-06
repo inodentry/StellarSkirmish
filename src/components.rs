@@ -1,11 +1,22 @@
 use bevy::prelude::*;
 
+/// This file contains the ECS Components to make the game run in addition to containing
+/// global constants and utility structs.
+
+pub const DAMPENING_FACTOR: f32 = 0.995;
+
 #[derive(Component)]
 pub struct Ship {
-    pub speed: f32,
+    pub thrust: f32,
     pub angle: f32,
     pub turn_speed: f32,
     pub cannon: WeaponSystem,
+    pub mass: f32,
+}
+
+#[derive(Component)]
+pub struct Velocity {
+    pub velocity: Vec3,
 }
 
 #[derive(Component)]
