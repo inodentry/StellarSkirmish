@@ -58,27 +58,28 @@ pub fn check_collisions_system(
             let asteroid_radius = roid_box.width_radius;
             if distance < ship_radius + asteroid_radius {
                 println!("Collision Detected!");
+                // Get the pre-collision speed sum, which will be the max post-collision speed.
+                let max_speed = ship_vel.velocity.length() + roid_vel.velocity.length();
+
+                // Reset the phase timer. This timer prevents repeated collisions every tick.
                 roid_phase.cd_timer.reset();
                 let total_mass = ship_m.value + roid_m.value;
 
+                // Get unit vectors indicating the directionality of the collision.
                 let ship_line_of_impact = (roid_t.translation - ship_t.translation).normalize();
-                let roid_line_of_impact = (ship_t.translation - roid_t.translation).normalize();
+                let roid_line_of_impact = -ship_line_of_impact;
 
+                // Project the velocity of each object onto the line of impact.
                 let ship_v_proj = ship_vel.velocity.dot(ship_line_of_impact) * ship_line_of_impact;
                 let roid_v_proj = roid_vel.velocity.dot(roid_line_of_impact) * roid_line_of_impact;
 
+                // Get the perpendicular velocities.
                 let ship_perp_vel = ship_vel.velocity - ship_v_proj;
                 let roid_perp_vel = roid_vel.velocity - roid_v_proj;
 
-                /*
-                The - sign is unconventional. The correct formula for updating the velocity along
-                the line of impact according to the conservation of momentum should have a + sign.
-                However, this resulted in the object of greater mass moving in the direction
-                opposite to what we would expect. I was unable to find the error after 2 hours and
-                getting this to be textbook accurate is not a priority, so I just swapped the sign
-                and decided to move on.
-                */
-
+                // Calculate the updated projections onto the lines of impact.
+                // This formula calculates the updated velocities along the lines of collision
+                // according to conservation of momentum.
                 let final_ship_v_proj = ((ship_m.value - RESTITUTION_COEF * roid_m.value)
                     * ship_v_proj
                     + 2.0 * RESTITUTION_COEF * roid_m.value * roid_v_proj)
@@ -90,8 +91,24 @@ pub fn check_collisions_system(
                 println!("{:?}", final_ship_v_proj);
                 println!("{:?}", final_roid_v_proj);
 
-                ship_vel.velocity += final_ship_v_proj + ship_perp_vel;
-                roid_vel.velocity += final_roid_v_proj + roid_perp_vel;
+                // Add the velocities.
+                let mut updated_ship_vel = final_ship_v_proj + ship_perp_vel;
+                let mut updated_roid_vel = final_roid_v_proj + roid_perp_vel;
+
+                // To avoid unrealistic behavior, like a light object glancing off an object of
+                // high mass and somehow getting a speed boost, we will cap the post-collision
+                // speed at the combined speed of both objects pre-collision. This cap makes
+                // the physics behavior seem a bit more realistic.
+                if updated_ship_vel.length() > max_speed {
+                    println!("{}", "Fixed max speed".to_string());
+                    updated_ship_vel = updated_ship_vel.normalize() * max_speed;
+                }
+                if updated_roid_vel.length() > max_speed {
+                    println!("{}", "Fixed max speed".to_string());
+                    updated_roid_vel = updated_roid_vel.normalize() * max_speed;
+                }
+                ship_vel.velocity = updated_ship_vel;
+                roid_vel.velocity = updated_roid_vel;
             }
         }
     }
