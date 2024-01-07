@@ -34,6 +34,7 @@ fn main() {
         )
         // Register Events
         .add_event::<DamageEvent>()
+        .add_event::<CollisionEvent>()
         // Update Systems
         .add_systems(
             Update,
@@ -53,8 +54,10 @@ fn main() {
             (
                 move_projectiles_system,
                 update_velocities_system,
-                check_nophase_collisions,
+                //check_nophase_collisions,
                 inflict_damage_system,
+                collision_calculation_system,
+                collision_resolution_system,
             ),
         )
         .add_systems(Update, tick_timers)

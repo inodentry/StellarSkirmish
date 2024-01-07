@@ -7,3 +7,9 @@ pub struct DamageEvent {
     pub damage_value: f32,
     pub damage_type: DamageType,
 }
+
+#[derive(Event)]
+pub struct CollisionEvent {
+    pub entity: Entity,
+    pub new_velocity: Vec3,
+}

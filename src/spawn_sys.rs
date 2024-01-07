@@ -89,7 +89,7 @@ pub fn spawn_asteroid_system(
             },
             Asteroid {},
             NoPhase {
-                cd_timer: Timer::from_seconds(0.75, TimerMode::Once),
+                cd_timer: Timer::from_seconds(0.05, TimerMode::Once),
             },
             CollisionBox {
                 shape: Shape::Circle,
