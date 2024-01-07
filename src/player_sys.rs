@@ -1,8 +1,8 @@
 use crate::components::*;
 use crate::ship_crafting::*;
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 use libm::atan2f;
+use std::f32::consts::PI;
 
 pub fn update_player_velocity(
     keyboard_input: Res<Input<KeyCode>>,
@@ -34,7 +34,7 @@ pub fn player_weapons_system(
     mouse_input: Res<Input<MouseButton>>,
     mut player_query: Query<(&mut Ship, &Transform, &Velocity), With<Player>>,
     asset_server: Res<AssetServer>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
+    mouse_coords: Res<WorldCoords>,
 ) {
     let (mut ship, transform, vel) = player_query.get_single_mut().unwrap();
 
@@ -107,39 +107,42 @@ pub fn player_weapons_system(
 
     // Fire Tertiary Weapon
     if mouse_input.pressed(MouseButton::Right) && ship.tertiary_weapon.cd_timer.finished() {
-        if let Some(position) = window_query.single().cursor_position() {
-            let y = position.y - transform.translation.y;
-            let x = position.x - transform.translation.x;
-            let aim = atan2f(-y, x);
+        let position = mouse_coords.coords;
+        let y = position.y - transform.translation.y;
+        let x = position.x - transform.translation.x;
+        let aim = atan2f(y, x);
+        println!(
+            "Mouse: {:?} | Ship: {:?} | Angle: {}",
+            mouse_coords.coords, transform.translation, aim
+        );
 
-            let mut projectile_transform =
-                Transform::from_xyz(transform.translation.x, transform.translation.y, 0.0)
-                    .with_scale(GLOBAL_RESCALE_V);
-            projectile_transform.rotation = Quat::from_rotation_z(aim);
-            projectile_transform.translation += projectile_transform.up() * 75.0 * GLOBAL_RESCALE_V;
-            commands.spawn((
-                SpriteBundle {
-                    transform: projectile_transform,
-                    texture: asset_server.load(ship.tertiary_weapon.sprite_path.clone()),
-                    ..default()
-                },
-                // The Projectile is granted value's from the ship's tertiary_weapon component.
-                // This depends on the type of projectile the cannon fires.
-                Projectile {
-                    speed: ship.tertiary_weapon.speed,
-                    fuel: ship.tertiary_weapon.fuel,
-                    projectile_type: ship.tertiary_weapon.proj_type.clone(),
-                    damage_type: ship.tertiary_weapon.dmg_type.clone(),
-                    damage_value: 5.0,
-                },
-                Phase {},
-                Velocity {
-                    velocity: projectile_transform.up()
-                        * (ship.tertiary_weapon.speed + vel.velocity.length()),
-                },
-            ));
-            ship.tertiary_weapon.cd_timer.reset()
-        }
+        let mut projectile_transform =
+            Transform::from_xyz(transform.translation.x, transform.translation.y, 0.0)
+                .with_scale(GLOBAL_RESCALE_V * 0.5)
+                .with_rotation(Quat::from_rotation_z(aim - PI / 2.0));
+        projectile_transform.translation += projectile_transform.up() * 75.0 * GLOBAL_RESCALE_V;
+        commands.spawn((
+            SpriteBundle {
+                transform: projectile_transform,
+                texture: asset_server.load(ship.tertiary_weapon.sprite_path.clone()),
+                ..default()
+            },
+            // The Projectile is granted value's from the ship's tertiary_weapon component.
+            // This depends on the type of projectile the cannon fires.
+            Projectile {
+                speed: ship.tertiary_weapon.speed,
+                fuel: ship.tertiary_weapon.fuel,
+                projectile_type: ship.tertiary_weapon.proj_type.clone(),
+                damage_type: ship.tertiary_weapon.dmg_type.clone(),
+                damage_value: 5.0,
+            },
+            Phase {},
+            Velocity {
+                velocity: projectile_transform.up()
+                    * (ship.tertiary_weapon.speed + vel.velocity.length()),
+            },
+        ));
+        ship.tertiary_weapon.cd_timer.reset()
     }
 }
 

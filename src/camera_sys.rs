@@ -1,9 +1,9 @@
 // use bevy::core_pipeline::bloom::BloomSettings;
-use crate::components::Player;
+use crate::components::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
-pub fn spawn_camera(
+pub fn spawn_camera_system(
     mut commands: Commands,
     mut window_query: Query<&mut Window, With<PrimaryWindow>>,
 ) {
@@ -21,11 +21,12 @@ pub fn spawn_camera(
             transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 0.0),
             ..default()
         },
+        MainCamera {},
         // BloomSettings::OLD_SCHOOL,
     ));
 }
 
-pub fn confine_player_movement(
+pub fn confine_player_movement_system(
     mut player_query: Query<&mut Transform, With<Player>>,
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
@@ -58,11 +59,11 @@ pub fn confine_player_movement(
     }
 }
 
-pub fn wrap_player_location(
-    mut player_query: Query<&mut Transform, With<Player>>,
+pub fn wrap_nophase_location_system(
+    mut nophase_query: Query<&mut Transform, With<NoPhase>>,
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
-    if let Ok(mut player_transform) = player_query.get_single_mut() {
+    for mut transform in nophase_query.iter_mut() {
         let window = window_query.get_single().unwrap();
 
         let x_min = 0.0;
@@ -70,7 +71,7 @@ pub fn wrap_player_location(
         let y_min = 0.0;
         let y_max = window.height();
 
-        let mut translation = player_transform.translation;
+        let mut translation = transform.translation;
 
         // Bound the player x position
         if translation.x < x_min {
@@ -86,6 +87,31 @@ pub fn wrap_player_location(
             translation.y = y_min;
         }
 
-        player_transform.translation = translation;
+        transform.translation = translation;
+    }
+}
+
+pub fn mouse_world_coords_system(
+    // Adapted from Ida Iyes' code
+    mut coords: ResMut<WorldCoords>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    // query to get camera transform
+    camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+) {
+    // get the camera info and transform
+    // assuming there is exactly one main camera entity, so Query::single() is OK
+    let (camera, camera_transform) = camera_query.single();
+
+    // There is only one primary window, so we can similarly get it from the query:
+    let window = window_query.single();
+
+    // check if the cursor is inside the window and get its position
+    // then, ask bevy to convert into world coordinates, and truncate to discard Z
+    if let Some(world_position) = window
+        .cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+        .map(|ray| ray.origin.truncate())
+    {
+        coords.coords = world_position;
     }
 }

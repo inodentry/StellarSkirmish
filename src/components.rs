@@ -5,6 +5,7 @@ use bevy::prelude::*;
 
 // Global Constants
 pub const DAMPENING_FACTOR: f32 = 0.995;
+
 pub const RESTITUTION_COEF: f32 = 0.6;
 
 pub const KINETIC_DAMAGE_COEF: f32 = 0.01;
@@ -81,6 +82,14 @@ pub struct CollisionBox {
     pub height: f32,
 }
 
+#[derive(Component)]
+pub struct MainCamera {}
+
+// Resources
+#[derive(Resource, Default)]
+pub struct WorldCoords {
+    pub coords: Vec2,
+}
 // Structs and Enums that are NOT Components
 
 pub enum Shape {

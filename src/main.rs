@@ -16,12 +16,21 @@ use spawn_sys::*;
 
 fn main() {
     App::new()
-        // Bevy Plugins and Basic Startup
+        // Bevy Plugins
         .add_plugins(DefaultPlugins)
+        // Resources
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
+        .insert_resource(WorldCoords {
+            coords: Vec2::default(),
+        })
+        // Startup Systems
         .add_systems(
             Startup,
-            (spawn_camera, spawn_player_system, spawn_asteroid_system),
+            (
+                spawn_camera_system,
+                spawn_player_system,
+                spawn_asteroid_system,
+            ),
         )
         // Register Events
         .add_event::<DamageEvent>()
@@ -29,9 +38,10 @@ fn main() {
         .add_systems(
             Update,
             (
+                mouse_world_coords_system,
                 player_weapons_system,
                 //confine_player_movement,
-                wrap_player_location,
+                wrap_nophase_location_system,
                 update_player_velocity,
                 despawn_dead,
                 check_projectile_collisions,
