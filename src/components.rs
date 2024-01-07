@@ -25,7 +25,6 @@ pub const GLOBAL_RESCALE_C: f32 = 0.5;
 // Components relating to ships
 #[derive(Component)]
 pub struct Ship {
-    pub angle: f32,
     pub turn_speed: f32,
     pub primary_weapon: WeaponSystem,
     pub secondary_weapon: WeaponSystem,
@@ -111,7 +110,9 @@ pub struct CollisionBox {
 /// Entities with the "drag" component have their velocities subjected to global dampening. They gradually slow down.
 /// Entities without this component will slow to a point, then slowly drift indefinitely due to inertia.
 #[derive(Component)]
-pub struct Drag {}
+pub struct Drag {
+    pub dampening_factor: f32,
+}
 
 #[derive(Component)]
 pub struct MainCamera {}

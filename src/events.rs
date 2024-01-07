@@ -14,11 +14,15 @@ pub struct CollisionEvent {
     pub new_velocity: Vec3,
 }
 
+// Can't have optional fields in Rust. I would like to be able to have optional marker components.
+// Is there a better pattern for that?
 #[derive(Event)]
 pub struct SpawnShipEvent {
     pub sprite_path: String,
-    pub primary_weapon: WeaponSystem,
+    pub primary_weapon: fn(),
     pub secondary_weapon: WeaponSystem,
     pub tertiary_weapon: WeaponSystem,
     pub thruster: Thruster,
+    pub drag: Drag,
+    pub vel: Velocity,
 }

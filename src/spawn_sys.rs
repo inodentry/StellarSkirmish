@@ -19,7 +19,6 @@ pub fn spawn_player_system(
         },
         Player {},
         Ship {
-            angle: f32::to_radians(90.0),
             turn_speed: f32::to_radians(1.25),
             primary_weapon: load_basic_torpedo(),
             secondary_weapon: load_basic_laser(),
@@ -36,7 +35,9 @@ pub fn spawn_player_system(
         Clipping {
             cd_timer: Timer::from_seconds(0.0, TimerMode::Once),
         },
-        Drag {},
+        Drag {
+            dampening_factor: 0.995,
+        },
         CollisionBox {
             shape: Shape::Circle,
             width_radius: 38.0 * GLOBAL_RESCALE_C,
@@ -61,16 +62,15 @@ pub fn spawn_ship_system(
                 0.0,
             )
             .with_scale(GLOBAL_RESCALE_V),
-            texture: asset_server.load("sprites/ships/enemyBlack5.png"),
+            texture: asset_server.load("sprites/ships/playerShip2_red.png"),
             ..default()
         },
         Enemy {},
         Ship {
-            angle: f32::to_radians(90.0),
             turn_speed: f32::to_radians(1.25),
-            primary_weapon: load_blank_weapon(),
+            primary_weapon: load_basic_torpedo(),
             secondary_weapon: load_basic_laser(),
-            tertiary_weapon: load_blank_weapon(),
+            tertiary_weapon: load_basic_cannon(),
         },
         Velocity {
             velocity: Vec3 {
@@ -83,7 +83,9 @@ pub fn spawn_ship_system(
         Clipping {
             cd_timer: Timer::from_seconds(0.0, TimerMode::Once),
         },
-        Drag {},
+        Drag {
+            dampening_factor: 0.995,
+        },
         CollisionBox {
             shape: Shape::Circle,
             width_radius: 38.0 * GLOBAL_RESCALE_C,

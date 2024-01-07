@@ -1,3 +1,4 @@
+mod ai_sys;
 mod camera_sys;
 mod components;
 mod events;
@@ -7,6 +8,7 @@ mod ship_parts;
 mod ships;
 mod spawn_sys;
 
+use ai_sys::*;
 use bevy::prelude::*;
 use camera_sys::*;
 use components::*;
@@ -30,24 +32,26 @@ fn main() {
             (
                 spawn_camera_system,
                 spawn_player_system,
+                spawn_ship_system,
                 spawn_asteroid_system,
             ),
         )
         // Register Events
         .add_event::<DamageEvent>()
         .add_event::<CollisionEvent>()
+        .add_event::<SpawnShipEvent>()
         // Update Systems
         .add_systems(
             Update,
             (
                 mouse_world_coords_system,
                 player_weapons_system,
-                //confine_player_movement,
                 wrap_clipping_location_system,
                 update_player_velocity,
                 despawn_dead,
                 check_projectile_collisions,
                 test_weapon_toggle,
+                enemy_ai_sys,
             ),
         )
         .add_systems(
@@ -55,7 +59,6 @@ fn main() {
             (
                 move_projectiles_system,
                 update_velocities_system,
-                //check_nophase_collisions,
                 inflict_damage_system,
                 collision_calculation_system,
                 collision_resolution_system,
