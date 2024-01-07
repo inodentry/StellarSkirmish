@@ -30,7 +30,8 @@ fn main() {
             Update,
             (
                 player_weapons_system,
-                confine_player_movement,
+                //confine_player_movement,
+                wrap_player_location,
                 update_player_velocity,
                 despawn_dead,
                 check_projectile_collisions,
