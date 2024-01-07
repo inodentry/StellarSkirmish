@@ -131,4 +131,5 @@ pub struct TertiaryWeaponSystem {
 pub enum ProjectileType {
     Laser,
     Missile,
+    Rocket,
 }

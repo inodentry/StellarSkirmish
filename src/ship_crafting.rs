@@ -5,11 +5,11 @@ use bevy::prelude::*;
 /// such as loading specific settings for a type of missile. These systems server as baselines
 /// that the player may later customize.
 
-pub fn load_basic_missile() -> PrimaryWeaponSystem {
+pub fn load_basic_rocket() -> PrimaryWeaponSystem {
     PrimaryWeaponSystem {
         speed: 1000.0,
         fuel: 300.0,
-        proj_type: ProjectileType::Missile,
+        proj_type: ProjectileType::Rocket,
         dmg_type: DamageType::Kinetic,
         sprite_path: "sprites/projectiles/spaceMissiles_001.png".to_string(),
         cooldown: 0.5,
