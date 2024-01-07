@@ -11,7 +11,8 @@ pub fn spawn_player_system(
     let window: &Window = window_query.get_single().unwrap();
     commands.spawn((
         SpriteBundle {
-            transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 0.0),
+            transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 0.0)
+                .with_scale(GLOBAL_RESCALE_V),
             texture: asset_server.load("sprites/ships/playerShip1_blue.png"),
             ..default()
         },
@@ -51,8 +52,8 @@ pub fn spawn_player_system(
         },
         CollisionBox {
             shape: Shape::Circle,
-            width_radius: 38.0,
-            height: 38.0,
+            width_radius: 38.0 * GLOBAL_RESCALE_C,
+            height: 38.0 * GLOBAL_RESCALE_C,
         },
         Health { value: 100.0 },
         Mass { value: 10.0 },
@@ -72,7 +73,8 @@ pub fn spawn_asteroid_system(
 
         commands.spawn((
             SpriteBundle {
-                transform: Transform::from_xyz(random_x, random_y, 0.0),
+                transform: Transform::from_xyz(random_x, random_y, 0.0)
+                    .with_scale(GLOBAL_RESCALE_V),
                 texture: asset_server.load("sprites/environmental/meteorGrey_big1.png"),
                 ..default()
             },
@@ -82,8 +84,8 @@ pub fn spawn_asteroid_system(
             },
             CollisionBox {
                 shape: Shape::Circle,
-                width_radius: 42.0,
-                height: 42.0,
+                width_radius: 42.0 * GLOBAL_RESCALE_C,
+                height: 42.0 * GLOBAL_RESCALE_C,
             },
             Health { value: 2.0 },
             Mass { value: 5.0 },

@@ -40,9 +40,10 @@ pub fn player_weapons_system(
     if keyboard_input.pressed(KeyCode::Space) && ship.primary_weapon.cd_timer.finished() {
         // The projectile's transform should originate from the firing ship.
         let mut projectile_transform =
-            Transform::from_xyz(transform.translation.x, transform.translation.y, 0.0);
+            Transform::from_xyz(transform.translation.x, transform.translation.y, 0.0)
+                .with_scale(GLOBAL_RESCALE_V);
         // Modify it a little so that it originates from just in front of the firing ship.
-        projectile_transform.translation += transform.up() * 75.0;
+        projectile_transform.translation += transform.up() * 75.0 * GLOBAL_RESCALE_V;
         // Ensure that it is rotated in a way that aligns with the firing ship.
         projectile_transform.rotation = transform.rotation.clone();
         commands.spawn((
@@ -75,8 +76,9 @@ pub fn player_weapons_system(
     // Fire Secondary Weapon
     if mouse_input.pressed(MouseButton::Left) && ship.secondary_weapon.cd_timer.finished() {
         let mut projectile_transform =
-            Transform::from_xyz(transform.translation.x, transform.translation.y, 0.0);
-        projectile_transform.translation += transform.up() * 75.0;
+            Transform::from_xyz(transform.translation.x, transform.translation.y, 0.0)
+                .with_scale(GLOBAL_RESCALE_V);
+        projectile_transform.translation += transform.up() * 75.0 * GLOBAL_RESCALE_V;
         projectile_transform.rotation = transform.rotation.clone();
         commands.spawn((
             SpriteBundle {

@@ -183,7 +183,7 @@ pub fn check_projectile_collisions(
             let distance = n_t.translation.distance(p_t.translation);
             let n_radius = n_c.width_radius;
             // Replace this with an actual collision box later!
-            let p_radius = 20.0;
+            let p_radius = 20.0 * GLOBAL_RESCALE_C;
             if distance < n_radius + p_radius {
                 println!("Hit Detected!");
                 commands.entity(p_e).despawn();

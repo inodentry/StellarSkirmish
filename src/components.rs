@@ -9,6 +9,15 @@ pub const RESTITUTION_COEF: f32 = 0.6;
 
 pub const KINETIC_DAMAGE_COEF: f32 = 0.01;
 
+// This is a global scaling factor used for all sprite textures in the game.
+pub const GLOBAL_RESCALE_V: Vec3 = Vec3 {
+    x: 0.5,
+    y: 0.5,
+    z: 0.5,
+};
+
+pub const GLOBAL_RESCALE_C: f32 = 0.5;
+
 // Bevy Components
 #[derive(Component)]
 pub struct Ship {
