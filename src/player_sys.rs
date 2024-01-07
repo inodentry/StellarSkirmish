@@ -1,17 +1,17 @@
 use crate::components::*;
-use crate::ship_crafting::*;
+use crate::ship_parts::*;
 use bevy::prelude::*;
 use libm::atan2f;
 use std::f32::consts::PI;
 
 pub fn update_player_velocity(
     keyboard_input: Res<Input<KeyCode>>,
-    mut player_query: Query<(&Ship, &mut Velocity, &mut Transform, &Mass), With<Player>>,
+    mut player_query: Query<(&Ship, &mut Velocity, &mut Transform, &Mass, &Thruster), With<Player>>,
     time: Res<Time>,
 ) {
-    if let Ok((ship, mut velocity, mut transform, mass)) = player_query.get_single_mut() {
+    if let Ok((ship, mut velocity, mut transform, mass, thruster)) = player_query.get_single_mut() {
         if keyboard_input.pressed(KeyCode::Up) || keyboard_input.pressed(KeyCode::W) {
-            let acceleration = transform.up() * ship.thrust / mass.value;
+            let acceleration = transform.up() * thruster.force / mass.value;
             velocity.velocity += acceleration * time.delta_seconds();
             if velocity.velocity.length() > 300.0 {
                 velocity.velocity = velocity.velocity.clamp_length_max(300.0)
@@ -57,8 +57,8 @@ pub fn player_weapons_system(
             // The Projectile is granted value's from the ship's primary_weapon component.
             // This depends on the type of projectile the cannon fires.
             Projectile {
-                speed: ship.primary_weapon.speed,
-                fuel: ship.primary_weapon.fuel,
+                speed: ship.primary_weapon.proj_speed,
+                fuel: ship.primary_weapon.proj_fuel,
                 projectile_type: ship.primary_weapon.proj_type.clone(),
                 damage_type: ship.primary_weapon.dmg_type.clone(),
                 mass: ship.primary_weapon.proj_mass,
@@ -66,12 +66,12 @@ pub fn player_weapons_system(
             },
             Phase {},
             Velocity {
-                velocity: transform.up() * (ship.primary_weapon.speed + vel.velocity.length()),
+                velocity: transform.up() * (ship.primary_weapon.proj_speed + vel.velocity.length()),
             },
         ));
         println!(
             "Projectile velocity: {:?}",
-            transform.up() * (ship.primary_weapon.speed + vel.velocity.length())
+            transform.up() * (ship.primary_weapon.proj_speed + vel.velocity.length())
         );
         println!("Ship velocity: {:?}", vel.velocity);
         ship.primary_weapon.cd_timer.reset()
@@ -92,8 +92,8 @@ pub fn player_weapons_system(
             // The Projectile is granted value's from the ship's secondary_weapon component.
             // This depends on the type of projectile the cannon fires.
             Projectile {
-                speed: ship.secondary_weapon.speed,
-                fuel: ship.secondary_weapon.fuel,
+                speed: ship.secondary_weapon.proj_speed,
+                fuel: ship.secondary_weapon.proj_fuel,
                 projectile_type: ship.secondary_weapon.proj_type.clone(),
                 damage_type: ship.secondary_weapon.dmg_type.clone(),
                 mass: ship.secondary_weapon.proj_mass,
@@ -101,7 +101,8 @@ pub fn player_weapons_system(
             },
             Phase {},
             Velocity {
-                velocity: transform.up() * (ship.secondary_weapon.speed + vel.velocity.length()),
+                velocity: transform.up()
+                    * (ship.secondary_weapon.proj_speed + vel.velocity.length()),
             },
         ));
         ship.secondary_weapon.cd_timer.reset()
@@ -132,8 +133,8 @@ pub fn player_weapons_system(
             // The Projectile is granted value's from the ship's tertiary_weapon component.
             // This depends on the type of projectile the cannon fires.
             Projectile {
-                speed: ship.tertiary_weapon.speed,
-                fuel: ship.tertiary_weapon.fuel,
+                speed: ship.tertiary_weapon.proj_speed,
+                fuel: ship.tertiary_weapon.proj_fuel,
                 projectile_type: ship.tertiary_weapon.proj_type.clone(),
                 damage_type: ship.tertiary_weapon.dmg_type.clone(),
                 mass: ship.tertiary_weapon.proj_mass,
@@ -142,7 +143,7 @@ pub fn player_weapons_system(
             Phase {},
             Velocity {
                 velocity: projectile_transform.up()
-                    * (ship.tertiary_weapon.speed + vel.velocity.length()),
+                    * (ship.tertiary_weapon.proj_speed + vel.velocity.length()),
             },
         ));
         ship.tertiary_weapon.cd_timer.reset()
@@ -155,6 +156,6 @@ pub fn test_weapon_toggle(
 ) {
     if keyboard_input.pressed(KeyCode::T) {
         let mut player_ship = player_query.get_single_mut().unwrap();
-        player_ship.primary_weapon = load_test_missile();
+        player_ship.primary_weapon = load_test_torpedo();
     }
 }

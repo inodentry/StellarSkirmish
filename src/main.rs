@@ -3,7 +3,8 @@ mod components;
 mod events;
 mod physics_sys;
 mod player_sys;
-mod ship_crafting;
+mod ship_parts;
+mod ships;
 mod spawn_sys;
 
 use bevy::prelude::*;

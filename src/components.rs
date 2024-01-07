@@ -21,14 +21,38 @@ pub const GLOBAL_RESCALE_V: Vec3 = Vec3 {
 pub const GLOBAL_RESCALE_C: f32 = 0.5;
 
 // Bevy Components
+
+// Components relating to ships
 #[derive(Component)]
 pub struct Ship {
-    pub thrust: f32,
     pub angle: f32,
     pub turn_speed: f32,
-    pub primary_weapon: PrimaryWeaponSystem,
-    pub secondary_weapon: SecondaryWeaponSystem,
-    pub tertiary_weapon: TertiaryWeaponSystem,
+    pub primary_weapon: WeaponSystem,
+    pub secondary_weapon: WeaponSystem,
+    pub tertiary_weapon: WeaponSystem,
+}
+
+/// This struct is the primary, heavy-hitting weapon system of a ship.
+#[derive(Component)]
+pub struct WeaponSystem {
+    pub name: String,
+    pub value: f32,
+    pub proj_speed: f32,
+    // "fuel" decrements each tick, and the projectile is destroyed when it hits 0
+    pub proj_fuel: f32,
+    pub cooldown: f32,
+    pub sprite_path: String,
+    pub proj_type: ProjectileType,
+    pub proj_mass: f32,
+    pub dmg_type: DamageType,
+    pub cd_timer: Timer,
+}
+
+#[derive(Component)]
+pub struct Thruster {
+    pub name: String,
+    pub value: f32,
+    pub force: f32,
 }
 
 #[derive(Component)]
@@ -108,43 +132,6 @@ pub enum Shape {
 pub enum DamageType {
     Kinetic,
     Radiant,
-}
-
-/// This struct is the primary, heavy-hitting weapon system of a ship.
-pub struct PrimaryWeaponSystem {
-    pub speed: f32,
-    // "fuel" decrements each tick, and the projectile is destroyed when it hits 0
-    pub fuel: f32,
-    pub cooldown: f32,
-    pub sprite_path: String,
-    pub proj_type: ProjectileType,
-    pub proj_mass: f32,
-    pub dmg_type: DamageType,
-    pub cd_timer: Timer,
-}
-
-/// This struct is the second, situational weapon system of a ship.
-pub struct SecondaryWeaponSystem {
-    pub speed: f32,
-    pub fuel: f32,
-    pub cooldown: f32,
-    pub sprite_path: String,
-    pub proj_type: ProjectileType,
-    pub proj_mass: f32,
-    pub dmg_type: DamageType,
-    pub cd_timer: Timer,
-}
-
-/// This struct is the tertiary weapon system / utility system of a ship.
-pub struct TertiaryWeaponSystem {
-    pub speed: f32,
-    pub fuel: f32,
-    pub cooldown: f32,
-    pub sprite_path: String,
-    pub proj_type: ProjectileType,
-    pub proj_mass: f32,
-    pub dmg_type: DamageType,
-    pub cd_timer: Timer,
 }
 
 #[derive(Clone, PartialEq)]
