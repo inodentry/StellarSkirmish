@@ -64,9 +64,9 @@ pub struct Projectile {
     pub damage_value: f32,
 }
 
-/// Entities with the NoPhase component are capable of colliding with both Phase and NoPhase entities.
+/// Entities with the Clipping component are capable of colliding with both Clipping and Phase entities.
 #[derive(Component)]
-pub struct NoPhase {
+pub struct Clipping {
     pub cd_timer: Timer,
 }
 
@@ -81,6 +81,11 @@ pub struct CollisionBox {
     pub width_radius: f32,
     pub height: f32,
 }
+
+/// Entities with the "drag" component have their velocities subjected to global dampening. They gradually slow down.
+/// Entities without this component will slow to a point, then slowly drift indefinitely due to inertia.
+#[derive(Component)]
+pub struct Drag {}
 
 #[derive(Component)]
 pub struct MainCamera {}

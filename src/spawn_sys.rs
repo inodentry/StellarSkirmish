@@ -56,9 +56,10 @@ pub fn spawn_player_system(
                 z: 0.0,
             },
         },
-        NoPhase {
+        Clipping {
             cd_timer: Timer::from_seconds(0.0, TimerMode::Once),
         },
+        Drag {},
         CollisionBox {
             shape: Shape::Circle,
             width_radius: 38.0 * GLOBAL_RESCALE_C,
@@ -88,7 +89,7 @@ pub fn spawn_asteroid_system(
                 ..default()
             },
             Asteroid {},
-            NoPhase {
+            Clipping {
                 cd_timer: Timer::from_seconds(0.05, TimerMode::Once),
             },
             CollisionBox {

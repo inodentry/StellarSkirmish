@@ -42,7 +42,7 @@ fn main() {
                 mouse_world_coords_system,
                 player_weapons_system,
                 //confine_player_movement,
-                wrap_nophase_location_system,
+                wrap_clipping_location_system,
                 update_player_velocity,
                 despawn_dead,
                 check_projectile_collisions,
@@ -66,7 +66,7 @@ fn main() {
 
 fn tick_timers(
     mut ship_query: Query<&mut Ship>,
-    mut phase_query: Query<&mut NoPhase>,
+    mut phase_query: Query<&mut Clipping>,
     time: Res<Time>,
 ) {
     for mut ship in ship_query.iter_mut() {

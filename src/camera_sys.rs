@@ -59,8 +59,8 @@ pub fn confine_player_movement_system(
     }
 }
 
-pub fn wrap_nophase_location_system(
-    mut nophase_query: Query<&mut Transform, With<NoPhase>>,
+pub fn wrap_clipping_location_system(
+    mut nophase_query: Query<&mut Transform, With<Clipping>>,
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     for mut transform in nophase_query.iter_mut() {
