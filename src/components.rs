@@ -92,6 +92,7 @@ pub struct PrimaryWeaponSystem {
     pub cooldown: f32,
     pub sprite_path: String,
     pub proj_type: ProjectileType,
+    pub dmg_type: DamageType,
     pub cd_timer: Timer,
 }
 
@@ -102,6 +103,7 @@ pub struct SecondaryWeaponSystem {
     pub cooldown: f32,
     pub sprite_path: String,
     pub proj_type: ProjectileType,
+    pub dmg_type: DamageType,
     pub cd_timer: Timer,
 }
 
@@ -112,6 +114,7 @@ pub struct TertiaryWeaponSystem {
     pub cooldown: f32,
     pub sprite_path: String,
     pub proj_type: ProjectileType,
+    pub dmg_type: DamageType,
     pub cd_timer: Timer,
 }
 

@@ -3,6 +3,7 @@ mod components;
 mod events;
 mod physics_sys;
 mod player_sys;
+mod ship_crafting;
 mod spawn_sys;
 
 use bevy::prelude::*;
@@ -33,6 +34,7 @@ fn main() {
                 update_player_velocity,
                 despawn_dead,
                 check_projectile_collisions,
+                test_weapon_toggle,
             ),
         )
         .add_systems(

@@ -1,4 +1,5 @@
 use crate::components::*;
+use crate::ship_crafting::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
@@ -55,15 +56,12 @@ pub fn player_weapons_system(
             Projectile {
                 speed: ship.primary_weapon.speed,
                 fuel: ship.primary_weapon.fuel,
-                projectile_type: ProjectileType::Missile,
-                damage_type: DamageType::Kinetic,
+                projectile_type: ship.primary_weapon.proj_type.clone(),
+                damage_type: ship.primary_weapon.dmg_type.clone(),
                 damage_value: 20.0,
             },
             Phase {},
-            Mass { value: 1.0 },
             Velocity {
-                // We need to add the ship's current velocity to the weapon's velocity. Otherwise the ship may be
-                // faster than the projectiles and immediately run into them! Plus, this is physically more correct.
                 velocity: transform.up() * (ship.primary_weapon.speed + vel.velocity.length()),
             },
         ));
@@ -91,9 +89,9 @@ pub fn player_weapons_system(
             Projectile {
                 speed: ship.secondary_weapon.speed,
                 fuel: ship.secondary_weapon.fuel,
-                projectile_type: ProjectileType::Laser,
-                damage_type: DamageType::Radiant,
-                damage_value: 5.0,
+                projectile_type: ship.secondary_weapon.proj_type.clone(),
+                damage_type: ship.secondary_weapon.dmg_type.clone(),
+                damage_value: 20.0,
             },
             Phase {},
             Velocity {
@@ -134,5 +132,15 @@ pub fn confine_player_movement(
         }
 
         player_transform.translation = translation;
+    }
+}
+
+pub fn test_weapon_toggle(
+    mut player_query: Query<&mut Ship, With<Player>>,
+    keyboard_input: Res<Input<KeyCode>>,
+) {
+    if keyboard_input.pressed(KeyCode::T) {
+        let mut player_ship = player_query.get_single_mut().unwrap();
+        player_ship.primary_weapon = load_test_missile();
     }
 }
