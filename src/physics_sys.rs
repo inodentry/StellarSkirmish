@@ -85,24 +85,10 @@ pub fn collision_calculation_system(
                     // Calculate the total mass to use in the physics calculations.
                     let total_mass = thing1_m.value + thing2_m.value;
 
-                    // Get the kinetic energy of the impact (for use in damage event, not in physics).
-                    let ke = 0.5
-                        * total_mass
-                        * (thing1_v.velocity - thing2_v.velocity).length().powf(2.0);
-
-                    // If the kinetic energy is non-trivial, send kinetic damage events.
-                    if ke > 50.0 {
-                        damage_writer.send(DamageEvent {
-                            target: thing1_e,
-                            damage_type: DamageType::Kinetic,
-                            damage_value: ke,
-                        });
-                        damage_writer.send(DamageEvent {
-                            target: thing2_e,
-                            damage_type: DamageType::Kinetic,
-                            damage_value: ke,
-                        });
-                    }
+                    // Get the initial kinetic energy of each object in the collision.
+                    let initial_ke = 0.5
+                        * (thing1_m.value * thing1_v.velocity.dot(thing1_v.velocity)
+                            + thing2_m.value * thing2_v.velocity.dot(thing2_v.velocity));
 
                     // Get unit vectors indicating the directionality of the collision.
                     let thing1_line_of_impact =
@@ -132,18 +118,27 @@ pub fn collision_calculation_system(
                             / total_mass;
 
                     // Add the velocities.
-                    // We subtract the line of impact vector to include a very slight repulsive force to the collision.
+                    let mut updated_thing1_v = final_thing1_v_proj + thing1_perp_v;
+                    let mut updated_thing2_v = final_thing2_v_proj + thing2_perp_v;
+
+                    // Get the final total kinetic energy of each object in the collision.
+                    // We get this prior to our adjustments, since the adjustments are fudge factors which
+                    // violate the conservation of energy for the sake of gameplay stabilization.
+                    // We want to ignore those adjustments when we calculate energy transfer for other purposes.
+                    let final_ke = 0.5
+                        * (thing1_m.value * updated_thing1_v.length().powf(2.0)
+                            + thing2_m.value * updated_thing2_v.length().powf(2.0));
+
+                    // We add a very slight repulsive force to each object in the direction opposite to the impact.
                     // This helps prevent objects from getting tangled.
-                    let mut updated_thing1_v =
-                        final_thing1_v_proj + thing1_perp_v - (thing1_line_of_impact * 0.1);
-                    let mut updated_thing2_v =
-                        final_thing2_v_proj + thing2_perp_v - (thing2_line_of_impact * 0.1);
+                    updated_thing1_v += -thing1_line_of_impact * REPULSION_FORCE;
+                    updated_thing2_v += -thing2_line_of_impact * REPULSION_FORCE;
 
                     // To avoid unrealistic behavior, like a light object glancing off an object of
                     // high mass and somehow getting a speed boost, we will cap the post-collision
                     // speed at the combined speed of both objects pre-collision. This cap makes
                     // the physics behavior seem a bit more realistic.
-                    // We add a tiny value to max_speed so that immobile overlapping objects can
+                    // We add a tiny value to max_speed so that stationary overlapping objects can
                     // still be gently "de-tangled."
                     if updated_thing1_v.length() > max_speed {
                         println!("{}", "Fixed max speed".to_string());
@@ -151,9 +146,13 @@ pub fn collision_calculation_system(
                     }
                     if updated_thing2_v.length() > max_speed {
                         println!("{}", "Fixed max speed".to_string());
-                        updated_thing2_v = updated_thing2_v.normalize() * (max_speed + 1.001);
+                        updated_thing2_v = updated_thing2_v.normalize() * (max_speed + 0.001);
                     }
 
+                    // Write a CollisionEvent for each object in the collision. This system uses an immutable query
+                    // to get around having potentially two references to the same underlying structures (since it
+                    // needs to check every permutation of objects for collisions). These events are handled safely
+                    // by another system that can mutate the underlying data.
                     collision_writer.send(CollisionEvent {
                         entity: thing1_e,
                         new_velocity: updated_thing1_v,
@@ -162,6 +161,27 @@ pub fn collision_calculation_system(
                         entity: thing2_e,
                         new_velocity: updated_thing2_v,
                     });
+
+                    // Calculate how much kinetic energy must have been absorbed in the collision.
+                    let ke_absorbed = initial_ke - final_ke;
+                    println!("KE of {} was absorbed!", ke_absorbed);
+
+                    // We don't want to bother dinging objects will little damage for every trivial bump.
+                    // However, if non-trivial kinetic energy is absorbed, this causes damage.
+                    // We write the kinetic energy absorbed by each object to a DamageEvent, allowing another system
+                    // to read them and handle them, factoring in resistances etc. as needed.
+                    if ke_absorbed > 50.0 {
+                        damage_writer.send(DamageEvent {
+                            target: thing1_e,
+                            damage_type: DamageType::Kinetic,
+                            damage_value: ke_absorbed / 2.0,
+                        });
+                        damage_writer.send(DamageEvent {
+                            target: thing2_e,
+                            damage_type: DamageType::Kinetic,
+                            damage_value: ke_absorbed / 2.0,
+                        });
+                    }
                 }
             }
         }
@@ -212,11 +232,26 @@ pub fn check_projectile_collisions(
             if distance < n_radius + p_radius {
                 println!("Hit Detected!");
                 commands.entity(p_e).despawn();
-                damage_writer.send(DamageEvent {
-                    target: n_e,
-                    damage_type: p_p.damage_type.clone(),
-                    damage_value: p_p.damage_value,
-                });
+
+                // Lasers have no mass, their damage is based on their base damage value
+                // Shells do have mass, and their damage is their kinetic energy.
+                if p_p.projectile_type == ProjectileType::Laser {
+                    damage_writer.send(DamageEvent {
+                        target: n_e,
+                        damage_type: p_p.damage_type.clone(),
+                        damage_value: p_p.damage_value,
+                    });
+                } else {
+                    println!(
+                        "KE of {} was absorbed!",
+                        p_p.damage_value + 0.25 * p_p.mass * p_p.speed.powf(2.0)
+                    );
+                    damage_writer.send(DamageEvent {
+                        target: n_e,
+                        damage_type: p_p.damage_type.clone(),
+                        damage_value: p_p.damage_value + 0.25 * p_p.mass * p_p.speed.powf(2.0),
+                    });
+                }
             }
         }
     }
@@ -230,14 +265,10 @@ pub fn inflict_damage_system(
     for ev in damage_reader.read() {
         println!(
             "Entity {:?} incurred {} damage!",
-            ev.target,
-            ev.damage_value * KINETIC_DAMAGE_COEF
+            ev.target, ev.damage_value
         );
         if let Ok(mut target_health) = health_query.get_mut(ev.target) {
-            let mut total_damage = ev.damage_value;
-            if ev.damage_type == DamageType::Kinetic {
-                total_damage *= KINETIC_DAMAGE_COEF;
-            }
+            let total_damage = ev.damage_value;
             target_health.value -= total_damage;
             println!(
                 "Entity {:?} now has {:?} Health!",

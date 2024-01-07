@@ -67,7 +67,7 @@ pub fn spawn_asteroid_system(
             },
             Asteroid {},
             Clipping {
-                cd_timer: Timer::from_seconds(0.05, TimerMode::Once),
+                cd_timer: Timer::from_seconds(0.15, TimerMode::Once),
             },
             CollisionBox {
                 shape: Shape::Circle,
@@ -75,7 +75,7 @@ pub fn spawn_asteroid_system(
                 height: 42.0 * GLOBAL_RESCALE_C,
             },
             Health { value: 10.0 },
-            Mass { value: 25.0 },
+            Mass { value: 2500.0 },
             Velocity {
                 velocity: Vec3 {
                     x: rng.gen::<f32>() * 0.1,

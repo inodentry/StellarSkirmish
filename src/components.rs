@@ -6,9 +6,10 @@ use bevy::prelude::*;
 // Global Constants
 pub const DAMPENING_FACTOR: f32 = 0.995;
 
-pub const RESTITUTION_COEF: f32 = 0.6;
+pub const RESTITUTION_COEF: f32 = 0.35;
 
-pub const KINETIC_DAMAGE_COEF: f32 = 0.01;
+// During collisions, objects are repulsed by this factor.
+pub const REPULSION_FORCE: f32 = 0.05;
 
 // This is a global scaling factor used for all sprite textures in the game.
 pub const GLOBAL_RESCALE_V: Vec3 = Vec3 {
@@ -62,6 +63,7 @@ pub struct Projectile {
     pub projectile_type: ProjectileType,
     pub damage_type: DamageType,
     pub damage_value: f32,
+    pub mass: f32,
 }
 
 /// Entities with the Clipping component are capable of colliding with both Clipping and Phase entities.
@@ -145,7 +147,7 @@ pub struct TertiaryWeaponSystem {
     pub cd_timer: Timer,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum ProjectileType {
     Laser,
     Missile,

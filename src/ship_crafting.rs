@@ -37,7 +37,7 @@ pub fn load_basic_cannon() -> TertiaryWeaponSystem {
         fuel: 300.0,
         proj_type: ProjectileType::Shells,
         dmg_type: DamageType::Kinetic,
-        proj_mass: 2.0,
+        proj_mass: 1.0,
         sprite_path: "sprites/projectiles/laserGreen14.png".to_string(),
         cooldown: 0.1,
         cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
