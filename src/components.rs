@@ -26,6 +26,7 @@ pub struct Ship {
     pub turn_speed: f32,
     pub primary_weapon: PrimaryWeaponSystem,
     pub secondary_weapon: SecondaryWeaponSystem,
+    pub tertiary_weapon: TertiaryWeaponSystem,
 }
 
 #[derive(Component)]
@@ -132,4 +133,5 @@ pub enum ProjectileType {
     Laser,
     Missile,
     Rocket,
+    Shells,
 }

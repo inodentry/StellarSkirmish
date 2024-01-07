@@ -36,8 +36,17 @@ pub fn spawn_player_system(
                 proj_type: ProjectileType::Laser,
                 dmg_type: DamageType::Radiant,
                 sprite_path: "sprites/projectiles/laserBlue04.png".to_string(),
-                cooldown: 0.2,
+                cooldown: 0.25,
                 cd_timer: Timer::from_seconds(0.2, TimerMode::Once),
+            },
+            tertiary_weapon: TertiaryWeaponSystem {
+                speed: 1600.0,
+                fuel: 300.0,
+                proj_type: ProjectileType::Shells,
+                dmg_type: DamageType::Kinetic,
+                sprite_path: "sprites/projectiles/laserGreen14.png".to_string(),
+                cooldown: 0.1,
+                cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
             },
         },
         Velocity {
@@ -67,7 +76,7 @@ pub fn spawn_asteroid_system(
 ) {
     let window = window_query.get_single().unwrap();
 
-    for _ in 0..5 {
+    for _ in 0..20 {
         let random_x = random::<f32>() * window.width();
         let random_y = random::<f32>() * window.height();
 

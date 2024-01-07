@@ -59,9 +59,9 @@ fn tick_timers(
     for mut ship in ship_query.iter_mut() {
         ship.primary_weapon.cd_timer.tick(time.delta());
         ship.secondary_weapon.cd_timer.tick(time.delta());
+        ship.tertiary_weapon.cd_timer.tick(time.delta());
     }
     for mut phase in phase_query.iter_mut() {
-        phase.cd_timer.tick(time.delta());
         phase.cd_timer.tick(time.delta());
     }
 }
