@@ -23,7 +23,7 @@ pub fn update_velocities_system(
             if velocity.velocity.length() > 0.0 {
                 velocity.velocity *= DAMPENING_FACTOR;
             }
-        } else if velocity.velocity.length() > 0.5 {
+        } else if velocity.velocity.length() > 0.25 {
             velocity.velocity *= DAMPENING_FACTOR;
         }
     }
@@ -143,13 +143,15 @@ pub fn collision_calculation_system(
                     // high mass and somehow getting a speed boost, we will cap the post-collision
                     // speed at the combined speed of both objects pre-collision. This cap makes
                     // the physics behavior seem a bit more realistic.
+                    // We add a tiny value to max_speed so that immobile overlapping objects can
+                    // still be gently "de-tangled."
                     if updated_thing1_v.length() > max_speed {
                         println!("{}", "Fixed max speed".to_string());
-                        updated_thing1_v = updated_thing1_v.normalize() * max_speed * 1.001;
+                        updated_thing1_v = updated_thing1_v.normalize() * (max_speed + 0.001);
                     }
                     if updated_thing2_v.length() > max_speed {
                         println!("{}", "Fixed max speed".to_string());
-                        updated_thing2_v = updated_thing2_v.normalize() * max_speed * 1.001;
+                        updated_thing2_v = updated_thing2_v.normalize() * (max_speed + 1.001);
                     }
 
                     collision_writer.send(CollisionEvent {
