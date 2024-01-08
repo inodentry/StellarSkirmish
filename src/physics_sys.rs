@@ -173,20 +173,29 @@ pub fn collision_calculation_system(
                     // Calculate how much kinetic energy must have been absorbed in the collision.
                     let ke_absorbed = initial_ke - final_ke;
 
+                    println!(
+                        "KE of collision: {} | Total DMG: {}",
+                        ke_absorbed,
+                        ke_absorbed * KE_TO_DMG
+                    );
+
                     // We don't want to bother dinging objects will little damage for every trivial bump.
                     // However, if non-trivial kinetic energy is absorbed, this causes damage.
+                    // "Non-trivial" is set at 2000 joules, because that would mean each object absorbed roughly
+                    // 1000 joules, which would be converted into 1 damage based on the default global
+                    // KE_TO_DMG constant.
                     // We write the kinetic energy absorbed by each object to a DamageEvent, allowing another system
                     // to read them and handle them, factoring in resistances etc. as needed.
-                    if ke_absorbed > 50.0 {
+                    if ke_absorbed > 2000.0 {
                         damage_writer.send(DamageEvent {
                             target: thing1_e,
                             damage_type: DamageType::Kinetic,
-                            damage_value: ke_absorbed / 2.0,
+                            damage_value: KE_TO_DMG * ke_absorbed / 2.0,
                         });
                         damage_writer.send(DamageEvent {
                             target: thing2_e,
                             damage_type: DamageType::Kinetic,
-                            damage_value: ke_absorbed / 2.0,
+                            damage_value: KE_TO_DMG * ke_absorbed / 2.0,
                         });
                     }
                 }
@@ -248,10 +257,12 @@ pub fn check_projectile_collisions(
                         damage_value: p_p.damage_value,
                     });
                 } else {
+                    println!("Hit for {} of KE", p_p.mass * p_p.speed.powf(2.0));
                     damage_writer.send(DamageEvent {
                         target: n_e,
                         damage_type: p_p.damage_type.clone(),
-                        damage_value: p_p.damage_value + 0.25 * p_p.mass * p_p.speed.powf(2.0),
+                        damage_value: p_p.damage_value
+                            + KE_TO_DMG * 0.5 * p_p.mass * p_p.speed.powf(2.0),
                     });
                 }
             }

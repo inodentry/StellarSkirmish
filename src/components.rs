@@ -6,6 +6,10 @@ use bevy::prelude::*;
 // Global Constants
 pub const DAMPENING_FACTOR: f32 = 0.995;
 
+// Global baseline restitution factor. The game's physics system begins by assuming perfect elasticity during
+// a collision, resulting in a very bouncy experience. Setting a restitution factor below 1 reduces the amount of
+// elasticity in the collision, so the colliding objects bounce less. However, less elasticity also means that
+// more of the energy in the collision is absorbed, leading to more damage.
 pub const RESTITUTION_COEF: f32 = 0.35;
 
 // During collisions, objects are repulsed by this factor.
@@ -28,6 +32,11 @@ pub const GLOBAL_RESCALE_C: f32 = 0.35;
 // Speed and velocity literals should be in m/s, and converted to px/s just for movement.
 pub const PS_TO_MS: f32 = 0.33;
 pub const MS_TO_PS: f32 = 3.0;
+
+// This is a global baseline for how much damage absorbed kinetic energy does. For example, a ship
+// absorbing 1000 joules of kinetic energy sustains 1000 * KE_TO_DMG damage. This ensures that we can use
+// physically accurate values and calculations for energy, but not need to compensate with millions of hit points.
+pub const KE_TO_DMG: f32 = 0.001;
 
 // Bevy Components
 

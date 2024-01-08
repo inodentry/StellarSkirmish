@@ -123,6 +123,6 @@ pub fn load_basic_thruster() -> Thruster {
     Thruster {
         name: "Basic Thruster".to_string(),
         value: 10.0,
-        force: 30.0,
+        force: 100000.0,
     }
 }

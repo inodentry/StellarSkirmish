@@ -45,7 +45,7 @@ pub fn spawn_player_system(
             height: 38.0 * GLOBAL_RESCALE_C,
         },
         Health { value: 100.0 },
-        Mass { value: 10.0 },
+        Mass { value: 100000.0 },
         EntityType::Ship,
     ));
 }
@@ -90,7 +90,7 @@ pub fn spawn_ship_system(
                 height: 38.0 * GLOBAL_RESCALE_C,
             },
             Health { value: 100.0 },
-            Mass { value: 10.0 },
+            Mass { value: 100000.0 },
             EntityType::Ship,
         ));
     }
@@ -106,11 +106,12 @@ pub fn spawn_asteroid_system(
     for _ in 0..20 {
         let random_x = rng.gen::<f32>() * window.width();
         let random_y = rng.gen::<f32>() * window.height();
+        let asteroid_rescaler = rng.gen::<f32>() * 2.0;
 
         commands.spawn((
             SpriteBundle {
                 transform: Transform::from_xyz(random_x, random_y, 0.0)
-                    .with_scale(GLOBAL_RESCALE_V),
+                    .with_scale(GLOBAL_RESCALE_V * asteroid_rescaler),
                 texture: asset_server.load("sprites/environmental/meteorGrey_big1.png"),
                 ..default()
             },
@@ -120,11 +121,13 @@ pub fn spawn_asteroid_system(
             },
             CollisionBox {
                 shape: Shape::Circle,
-                width_radius: 42.0 * GLOBAL_RESCALE_C,
-                height: 42.0 * GLOBAL_RESCALE_C,
+                width_radius: 42.0 * GLOBAL_RESCALE_C * asteroid_rescaler,
+                height: 42.0 * GLOBAL_RESCALE_C * asteroid_rescaler,
             },
             Health { value: 10.0 },
-            Mass { value: 2500.0 },
+            Mass {
+                value: 10000.0 * asteroid_rescaler,
+            },
             Velocity {
                 velocity: Vec3 {
                     x: rng.gen::<f32>() * 0.1,
