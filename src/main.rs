@@ -36,9 +36,10 @@ fn main() {
             Startup,
             (
                 spawn_camera_system,
-                spawn_player_system,
-                spawn_ship_system,
-                spawn_asteroid_system,
+                setup_background_stars_system.after(spawn_camera_system),
+                spawn_player_system.after(spawn_camera_system),
+                spawn_ship_system.after(spawn_camera_system),
+                spawn_asteroid_system.after(spawn_camera_system),
             ),
         )
         // Register Events
@@ -52,21 +53,22 @@ fn main() {
                 mouse_world_coords_system,
                 player_weapons_system,
                 wrap_clipping_location_system,
-                update_player_velocity,
-                despawn_dead,
-                check_projectile_collisions,
+                despawn_dead_system,
                 test_weapon_toggle,
-                enemy_ai_sys,
+                enemy_ai_system,
+                handle_self_destruct_system,
             ),
         )
         .add_systems(
             Update,
             (
                 move_projectiles_system,
-                update_velocities_system,
+                movement_system,
+                update_player_velocity_system,
                 inflict_damage_system,
                 collision_calculation_system,
                 collision_resolution_system,
+                check_projectile_collisions,
             ),
         )
         .add_systems(Update, tick_timers)
@@ -76,6 +78,7 @@ fn main() {
 fn tick_timers(
     mut ship_query: Query<&mut Ship>,
     mut clipping_query: Query<&mut Clipping>,
+    mut self_destruct_query: Query<&mut SelfDestruct>,
     time: Res<Time>,
 ) {
     for mut ship in ship_query.iter_mut() {
@@ -85,5 +88,8 @@ fn tick_timers(
     }
     for mut clipping in clipping_query.iter_mut() {
         clipping.cd_timer.tick(time.delta());
+    }
+    for mut self_destruct in self_destruct_query.iter_mut() {
+        self_destruct.cd_timer.tick(time.delta());
     }
 }

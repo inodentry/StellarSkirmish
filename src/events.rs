@@ -15,7 +15,8 @@ pub struct CollisionEvent {
 }
 
 // Can't have optional fields in Rust. I would like to be able to have optional marker components.
-// Is there a better pattern for that?
+// Is there a better pattern for that? Need a generic bag of components that I can dynamically spawn
+// during runtime.
 #[derive(Event)]
 pub struct SpawnShipEvent {
     pub sprite_path: String,

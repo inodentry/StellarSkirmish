@@ -2,7 +2,7 @@ use crate::components::*;
 use crate::events::*;
 use bevy::prelude::*;
 
-pub fn update_velocities_system(
+pub fn movement_system(
     mut velocity_query: Query<
         (Entity, &mut Velocity, &mut Transform),
         (With<Velocity>, Without<Projectile>),
@@ -11,9 +11,10 @@ pub fn update_velocities_system(
 ) {
     // Update velocities. Cap max speed, if needed.
     for (entity, mut velocity, mut transform) in velocity_query.iter_mut() {
-        transform.translation += velocity.velocity;
-        if velocity.velocity.length() > 500.0 {
-            velocity.velocity = velocity.velocity.normalize() * 500.0
+        // Velocities are in meters per second, and need to be converted to pixels per second.
+        transform.translation += velocity.velocity * MS_TO_PS;
+        if velocity.velocity.length() > 200.0 {
+            velocity.velocity = velocity.velocity.normalize() * 200.0
         }
 
         // If this entity has the Drag component, apply unrestricted global dampening to its velocity.
@@ -38,7 +39,7 @@ pub fn move_projectiles_system(
     time: Res<Time>,
 ) {
     for (entity, mut projectile, mut transform, vel) in projectile_query.iter_mut() {
-        let move_dir = vel.velocity * time.delta_seconds();
+        let move_dir = vel.velocity * MS_TO_PS * time.delta_seconds();
         transform.translation += move_dir;
         projectile.fuel -= 1.0;
         if projectile.fuel <= 0.0 {

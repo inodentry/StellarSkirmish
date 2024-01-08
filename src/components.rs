@@ -13,12 +13,21 @@ pub const REPULSION_FORCE: f32 = 0.05;
 
 // This is a global scaling factor used for all sprite textures in the game.
 pub const GLOBAL_RESCALE_V: Vec3 = Vec3 {
-    x: 0.5,
-    y: 0.5,
-    z: 0.5,
+    x: 0.35,
+    y: 0.35,
+    z: 0.35,
 };
 
-pub const GLOBAL_RESCALE_C: f32 = 0.5;
+pub const GLOBAL_RESCALE_C: f32 = 0.35;
+
+// Based on ship speeds in pixels in the game, we are claiming that moving
+// 1 pixel per second is equal to moving 0.33 meters per second.
+// This may be useful to keep the numbers in various calculations somewhat believable
+// and relatable to reality. It lets us give projectiles realistic speeds and calculate
+// somewhat realistic kinetic energy absorbed in collisions.
+// Speed and velocity literals should be in m/s, and converted to px/s just for movement.
+pub const PS_TO_MS: f32 = 0.33;
+pub const MS_TO_PS: f32 = 3.0;
 
 // Bevy Components
 
@@ -41,6 +50,7 @@ pub struct WeaponSystem {
     pub proj_fuel: f32,
     pub cooldown: f32,
     pub sprite_path: String,
+    pub on_spawn_sprite_path: String,
     pub sound_path: String,
     pub proj_type: ProjectileType,
     pub proj_mass: f32,
@@ -94,6 +104,11 @@ pub struct Projectile {
 /// Entities with the Clipping component are capable of colliding with both Clipping and Phase entities.
 #[derive(Component)]
 pub struct Clipping {
+    pub cd_timer: Timer,
+}
+
+#[derive(Component)]
+pub struct SelfDestruct {
     pub cd_timer: Timer,
 }
 

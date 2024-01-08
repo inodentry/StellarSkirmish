@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use libm::atan2f;
 use std::f32::consts::PI;
 
-pub fn enemy_ai_sys(
+pub fn enemy_ai_system(
     mut commands: Commands,
     mut q_enemy: Query<(&mut Ship, &mut Transform, &Velocity), (With<Enemy>, Without<Player>)>,
     q_player: Query<(&Transform), (With<Player>, Without<Enemy>)>,
@@ -65,12 +65,6 @@ pub fn enemy_ai_sys(
                             * (enemy_ship.primary_weapon.proj_speed + vel.velocity.length()),
                     },
                 ));
-                println!(
-                    "Projectile velocity: {:?}",
-                    enemy_transform.up()
-                        * (enemy_ship.primary_weapon.proj_speed + vel.velocity.length())
-                );
-                println!("Ship velocity: {:?}", vel.velocity);
                 enemy_ship.primary_weapon.cd_timer.reset()
             }
         }

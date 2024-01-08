@@ -1,5 +1,6 @@
 use crate::components::*;
 use crate::ship_parts::*;
+use crate::ships::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use rand::prelude::*;
@@ -68,12 +69,7 @@ pub fn spawn_ship_system(
                 ..default()
             },
             Enemy {},
-            Ship {
-                turn_speed: f32::to_radians(1.25),
-                primary_weapon: load_practice_laser(),
-                secondary_weapon: load_basic_laser(),
-                tertiary_weapon: load_basic_cannon(),
-            },
+            load_practice_ship(),
             Velocity {
                 velocity: Vec3 {
                     x: 0.0,
@@ -106,7 +102,7 @@ pub fn spawn_asteroid_system(
     asset_server: Res<AssetServer>,
 ) {
     let window = window_query.get_single().unwrap();
-    let mut rng = rand::thread_rng();
+    let mut rng = thread_rng();
     for _ in 0..20 {
         let random_x = rng.gen::<f32>() * window.width();
         let random_y = rng.gen::<f32>() * window.height();
@@ -141,7 +137,7 @@ pub fn spawn_asteroid_system(
     }
 }
 
-pub fn despawn_dead(
+pub fn despawn_dead_system(
     mut commands: Commands,
     entity_query: Query<(Entity, &Health, &EntityType)>,
     asset_server: Res<AssetServer>,
@@ -158,5 +154,39 @@ pub fn despawn_dead(
             }
             commands.entity(entity).despawn();
         }
+    }
+}
+
+pub fn handle_self_destruct_system(
+    mut commands: Commands,
+    mut entity_query: Query<(Entity, &mut SelfDestruct), With<SelfDestruct>>,
+) {
+    for (entity, mut self_destruct) in entity_query.iter_mut() {
+        if self_destruct.cd_timer.finished() {
+            commands.entity(entity).despawn();
+        }
+    }
+}
+
+pub fn setup_background_stars_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+) {
+    let win = window_query.get_single().unwrap();
+    let mut rng = thread_rng();
+    for _ in 0..30 {
+        commands.spawn(
+            (SpriteBundle {
+                transform: Transform::from_xyz(
+                    rng.gen::<f32>() * win.width(),
+                    rng.gen::<f32>() * win.height(),
+                    0.0,
+                )
+                .with_scale(GLOBAL_RESCALE_V),
+                texture: asset_server.load("sprites/effects/star2.png"),
+                ..default()
+            }),
+        );
     }
 }

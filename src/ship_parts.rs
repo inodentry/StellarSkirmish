@@ -12,16 +12,17 @@ pub fn load_basic_torpedo() -> WeaponSystem {
     WeaponSystem {
         name: "Basic Torpedo".to_string(),
         value: 10.0,
-        proj_speed: 1000.0,
+        proj_speed: 300.0, // m/s
         proj_fuel: 300.0,
         proj_type: ProjectileType::Torpedo,
-        proj_mass: 1.0,
+        proj_mass: 5.0, // kg
         dmg_type: DamageType::Kinetic,
         dmg: 0.0,
         sprite_path: "sprites/projectiles/spaceMissiles_001.png".to_string(),
+        on_spawn_sprite_path: "".to_string(),
         sound_path: "".to_string(),
         cooldown: 0.5,
-        cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
+        cd_timer: Timer::from_seconds(1.0, TimerMode::Once),
     }
 }
 
@@ -29,15 +30,16 @@ pub fn load_basic_laser() -> WeaponSystem {
     WeaponSystem {
         name: "Basic Laser".to_string(),
         value: 10.0,
-        proj_speed: 1200.0,
+        proj_speed: 400.0, // m/s
         proj_fuel: 400.0,
         proj_type: ProjectileType::Laser,
         proj_mass: 0.0,
         dmg_type: DamageType::Radiant,
         dmg: 5.0,
         sprite_path: "sprites/projectiles/laserBlue04.png".to_string(),
+        on_spawn_sprite_path: "".to_string(),
         sound_path: "sounds/laserSmall_002.ogg".to_string(),
-        cooldown: 0.2,
+        cooldown: 0.25,
         cd_timer: Timer::from_seconds(0.2, TimerMode::Once),
     }
 }
@@ -46,15 +48,16 @@ pub fn load_basic_cannon() -> WeaponSystem {
     WeaponSystem {
         name: "Basic Turret".to_string(),
         value: 10.0,
-        proj_speed: 1600.0,
+        proj_speed: 1000.0, // m/s
         proj_fuel: 300.0,
         proj_type: ProjectileType::Shells,
         dmg_type: DamageType::Kinetic,
         dmg: 0.5,
-        proj_mass: 1.0,
-        sprite_path: "sprites/projectiles/laserGreen14.png".to_string(),
-        sound_path: "".to_string(),
-        cooldown: 0.1,
+        proj_mass: 0.040, // kg
+        sprite_path: "".to_string(),
+        on_spawn_sprite_path: "sprites/effects/fire07.png".to_string(),
+        sound_path: "sounds/light_shells.ogg".to_string(),
+        cooldown: 0.15,
         cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
     }
 }
@@ -70,6 +73,7 @@ pub fn load_blank_weapon() -> WeaponSystem {
         dmg: 0.0,
         proj_mass: 0.0,
         sprite_path: "".to_string(),
+        on_spawn_sprite_path: "".to_string(),
         sound_path: "".to_string(),
         cooldown: 0.0,
         cd_timer: Timer::from_seconds(0.0, TimerMode::Once),
@@ -80,13 +84,14 @@ pub fn load_test_torpedo() -> WeaponSystem {
     WeaponSystem {
         name: "Test Torpedo".to_string(),
         value: 0.0,
-        proj_speed: 600.0,
+        proj_speed: 300.0, // m/s
         proj_fuel: 300.0,
         proj_type: ProjectileType::Torpedo,
-        proj_mass: 1.0,
+        proj_mass: 5.0, // kg
         dmg_type: DamageType::Kinetic,
         dmg: 0.0,
         sprite_path: "sprites/projectiles/spaceMissiles_020.png".to_string(),
+        on_spawn_sprite_path: "".to_string(),
         sound_path: "".to_string(),
         cooldown: 0.5,
         cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
@@ -97,13 +102,14 @@ pub fn load_practice_laser() -> WeaponSystem {
     WeaponSystem {
         name: "Practice Laser".to_string(),
         value: 0.0,
-        proj_speed: 600.0,
+        proj_speed: 400.0,
         proj_fuel: 300.0,
         proj_type: ProjectileType::Laser,
         proj_mass: 0.0,
         dmg_type: DamageType::Radiant,
         dmg: 0.0,
         sprite_path: "sprites/projectiles/laserRed09.png".to_string(),
+        on_spawn_sprite_path: "".to_string(),
         sound_path: "".to_string(),
         cooldown: 2.0,
         cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
@@ -117,6 +123,6 @@ pub fn load_basic_thruster() -> Thruster {
     Thruster {
         name: "Basic Thruster".to_string(),
         value: 10.0,
-        force: 100.0,
+        force: 30.0,
     }
 }
