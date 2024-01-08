@@ -50,6 +50,7 @@ pub fn move_projectiles_system(
 /// This system is checks for collisions between entities with the Clipping component and calculates the
 /// physics result of the collision to be sent as Events.
 pub fn collision_calculation_system(
+    mut commands: Commands,
     mut q_thing: Query<
         (
             Entity,
@@ -61,6 +62,7 @@ pub fn collision_calculation_system(
         ),
         (With<Clipping>),
     >,
+    asset_server: Res<AssetServer>,
     mut damage_writer: EventWriter<DamageEvent>,
     mut collision_writer: EventWriter<CollisionEvent>,
 ) {
@@ -78,6 +80,12 @@ pub fn collision_calculation_system(
                 let ship_radius = thing1_b.width_radius;
                 let asteroid_radius = thing2_b.width_radius;
                 if distance < ship_radius + asteroid_radius {
+                    // Thump!
+                    commands.spawn(AudioBundle {
+                        source: asset_server.load("sounds/impactSoft_medium_001.ogg"),
+                        ..default()
+                    });
+
                     // Get the pre-collision speed sum, which will be the max post-collision speed.
                     let max_speed = thing1_v.velocity.length() + thing2_v.velocity.length();
 
