@@ -54,46 +54,48 @@ pub fn spawn_ship_system(
     asset_server: Res<AssetServer>,
 ) {
     let window: &Window = window_query.get_single().unwrap();
-    commands.spawn((
-        SpriteBundle {
-            transform: Transform::from_xyz(
-                random::<f32>() * window.width(),
-                random::<f32>() * window.height(),
-                0.0,
-            )
-            .with_scale(GLOBAL_RESCALE_V),
-            texture: asset_server.load("sprites/ships/playerShip2_red.png"),
-            ..default()
-        },
-        Enemy {},
-        Ship {
-            turn_speed: f32::to_radians(1.25),
-            primary_weapon: load_basic_torpedo(),
-            secondary_weapon: load_basic_laser(),
-            tertiary_weapon: load_basic_cannon(),
-        },
-        Velocity {
-            velocity: Vec3 {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
+    for _ in 0..10 {
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(
+                    random::<f32>() * window.width(),
+                    random::<f32>() * window.height(),
+                    0.0,
+                )
+                .with_scale(GLOBAL_RESCALE_V),
+                texture: asset_server.load("sprites/ships/playerShip2_red.png"),
+                ..default()
             },
-        },
-        load_basic_thruster(),
-        Clipping {
-            cd_timer: Timer::from_seconds(0.0, TimerMode::Once),
-        },
-        Drag {
-            dampening_factor: 0.995,
-        },
-        CollisionBox {
-            shape: Shape::Circle,
-            width_radius: 38.0 * GLOBAL_RESCALE_C,
-            height: 38.0 * GLOBAL_RESCALE_C,
-        },
-        Health { value: 100.0 },
-        Mass { value: 10.0 },
-    ));
+            Enemy {},
+            Ship {
+                turn_speed: f32::to_radians(1.25),
+                primary_weapon: load_practice_laser(),
+                secondary_weapon: load_basic_laser(),
+                tertiary_weapon: load_basic_cannon(),
+            },
+            Velocity {
+                velocity: Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+            },
+            load_basic_thruster(),
+            Clipping {
+                cd_timer: Timer::from_seconds(0.0, TimerMode::Once),
+            },
+            Drag {
+                dampening_factor: 0.995,
+            },
+            CollisionBox {
+                shape: Shape::Circle,
+                width_radius: 38.0 * GLOBAL_RESCALE_C,
+                height: 38.0 * GLOBAL_RESCALE_C,
+            },
+            Health { value: 100.0 },
+            Mass { value: 10.0 },
+        ));
+    }
 }
 
 pub fn spawn_asteroid_system(

@@ -17,6 +17,7 @@ pub fn load_basic_torpedo() -> WeaponSystem {
         proj_type: ProjectileType::Torpedo,
         proj_mass: 1.0,
         dmg_type: DamageType::Kinetic,
+        dmg: 0.0,
         sprite_path: "sprites/projectiles/spaceMissiles_001.png".to_string(),
         cooldown: 0.5,
         cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
@@ -32,6 +33,7 @@ pub fn load_basic_laser() -> WeaponSystem {
         proj_type: ProjectileType::Laser,
         proj_mass: 0.0,
         dmg_type: DamageType::Radiant,
+        dmg: 5.0,
         sprite_path: "sprites/projectiles/laserBlue04.png".to_string(),
         cooldown: 0.2,
         cd_timer: Timer::from_seconds(0.2, TimerMode::Once),
@@ -46,6 +48,7 @@ pub fn load_basic_cannon() -> WeaponSystem {
         proj_fuel: 300.0,
         proj_type: ProjectileType::Shells,
         dmg_type: DamageType::Kinetic,
+        dmg: 0.5,
         proj_mass: 1.0,
         sprite_path: "sprites/projectiles/laserGreen14.png".to_string(),
         cooldown: 0.1,
@@ -61,6 +64,7 @@ pub fn load_blank_weapon() -> WeaponSystem {
         proj_fuel: 0.0,
         proj_type: ProjectileType::Shells,
         dmg_type: DamageType::Kinetic,
+        dmg: 0.0,
         proj_mass: 0.0,
         // Valid path supplied temporarily
         sprite_path: "sprites/projectiles/laserGreen14.png".to_string(),
@@ -78,8 +82,25 @@ pub fn load_test_torpedo() -> WeaponSystem {
         proj_type: ProjectileType::Torpedo,
         proj_mass: 1.0,
         dmg_type: DamageType::Kinetic,
+        dmg: 0.0,
         sprite_path: "sprites/projectiles/spaceMissiles_020.png".to_string(),
         cooldown: 0.5,
+        cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
+    }
+}
+
+pub fn load_practice_laser() -> WeaponSystem {
+    WeaponSystem {
+        name: "Practice Laser".to_string(),
+        value: 0.0,
+        proj_speed: 600.0,
+        proj_fuel: 300.0,
+        proj_type: ProjectileType::Laser,
+        proj_mass: 0.0,
+        dmg_type: DamageType::Radiant,
+        dmg: 0.0,
+        sprite_path: "sprites/projectiles/laserRed09.png".to_string(),
+        cooldown: 2.0,
         cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
     }
 }

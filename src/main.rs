@@ -9,6 +9,7 @@ mod ships;
 mod spawn_sys;
 
 use ai_sys::*;
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use camera_sys::*;
 use components::*;
@@ -20,7 +21,11 @@ use spawn_sys::*;
 fn main() {
     App::new()
         // Bevy Plugins
-        .add_plugins(DefaultPlugins)
+        .add_plugins((
+            DefaultPlugins,
+            FrameTimeDiagnosticsPlugin::default(),
+            LogDiagnosticsPlugin::default(),
+        ))
         // Resources
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .insert_resource(WorldCoords {

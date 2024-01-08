@@ -45,6 +45,7 @@ pub struct WeaponSystem {
     pub proj_mass: f32,
     pub dmg_type: DamageType,
     pub cd_timer: Timer,
+    pub dmg: f32,
 }
 
 #[derive(Component)]

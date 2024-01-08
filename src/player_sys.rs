@@ -62,7 +62,7 @@ pub fn player_weapons_system(
                 projectile_type: ship.primary_weapon.proj_type.clone(),
                 damage_type: ship.primary_weapon.dmg_type.clone(),
                 mass: ship.primary_weapon.proj_mass,
-                damage_value: 20.0,
+                damage_value: ship.primary_weapon.dmg,
             },
             Phase {},
             Velocity {
@@ -97,7 +97,7 @@ pub fn player_weapons_system(
                 projectile_type: ship.secondary_weapon.proj_type.clone(),
                 damage_type: ship.secondary_weapon.dmg_type.clone(),
                 mass: ship.secondary_weapon.proj_mass,
-                damage_value: 20.0,
+                damage_value: ship.secondary_weapon.dmg,
             },
             Phase {},
             Velocity {
@@ -138,7 +138,7 @@ pub fn player_weapons_system(
                 projectile_type: ship.tertiary_weapon.proj_type.clone(),
                 damage_type: ship.tertiary_weapon.dmg_type.clone(),
                 mass: ship.tertiary_weapon.proj_mass,
-                damage_value: 5.0,
+                damage_value: ship.tertiary_weapon.dmg,
             },
             Phase {},
             Velocity {
