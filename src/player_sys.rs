@@ -83,6 +83,10 @@ pub fn player_weapons_system(
                     .with_scale(GLOBAL_RESCALE_V);
             projectile_transform.translation += transform.up() * 75.0 * GLOBAL_RESCALE_V;
             projectile_transform.rotation = transform.rotation.clone();
+            commands.spawn(AudioBundle {
+                source: asset_server.load(ship.secondary_weapon.sound_path.clone()),
+                ..default()
+            });
             commands.spawn((
                 SpriteBundle {
                     transform: projectile_transform,

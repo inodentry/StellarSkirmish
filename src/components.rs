@@ -41,6 +41,7 @@ pub struct WeaponSystem {
     pub proj_fuel: f32,
     pub cooldown: f32,
     pub sprite_path: String,
+    pub sound_path: String,
     pub proj_type: ProjectileType,
     pub proj_mass: f32,
     pub dmg_type: DamageType,
@@ -118,10 +119,22 @@ pub struct Drag {
 #[derive(Component)]
 pub struct MainCamera {}
 
+#[derive(Component, PartialEq)]
+pub enum EntityType {
+    Player,
+    Ship,
+    Asteroid,
+}
+
 // Resources
 #[derive(Resource, Default)]
 pub struct WorldCoords {
     pub coords: Vec2,
+}
+
+#[derive(Resource)]
+pub struct ExplosionSound {
+    sound: Handle<AudioSource>,
 }
 // Structs and Enums that are NOT Components
 

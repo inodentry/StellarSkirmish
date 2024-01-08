@@ -10,7 +10,7 @@ pub fn spawn_camera_system(
     // Also setting the resolution to 1200x900 here so we have more screen to work.
     // Window resizing will probably get moved later on.
     let mut window = window_query.get_single_mut().unwrap();
-    window.resolution.set(1200.0, 900.0);
+    window.resolution.set(1600.0, 1000.0);
 
     commands.spawn((
         Camera2dBundle {

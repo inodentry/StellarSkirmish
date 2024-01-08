@@ -78,7 +78,6 @@ pub fn collision_calculation_system(
                 let ship_radius = thing1_b.width_radius;
                 let asteroid_radius = thing2_b.width_radius;
                 if distance < ship_radius + asteroid_radius {
-                    println!("Collision Detected!");
                     // Get the pre-collision speed sum, which will be the max post-collision speed.
                     let max_speed = thing1_v.velocity.length() + thing2_v.velocity.length();
 
@@ -164,7 +163,6 @@ pub fn collision_calculation_system(
 
                     // Calculate how much kinetic energy must have been absorbed in the collision.
                     let ke_absorbed = initial_ke - final_ke;
-                    println!("KE of {} was absorbed!", ke_absorbed);
 
                     // We don't want to bother dinging objects will little damage for every trivial bump.
                     // However, if non-trivial kinetic energy is absorbed, this causes damage.
@@ -230,7 +228,6 @@ pub fn check_projectile_collisions(
             // Replace this with an actual collision box later!
             let p_radius = 20.0 * GLOBAL_RESCALE_C;
             if distance < n_radius + p_radius {
-                println!("Hit Detected!");
                 commands.entity(p_e).despawn();
 
                 // Lasers have no mass, their damage is based on their base damage value
@@ -242,10 +239,6 @@ pub fn check_projectile_collisions(
                         damage_value: p_p.damage_value,
                     });
                 } else {
-                    println!(
-                        "KE of {} was absorbed!",
-                        p_p.damage_value + 0.25 * p_p.mass * p_p.speed.powf(2.0)
-                    );
                     damage_writer.send(DamageEvent {
                         target: n_e,
                         damage_type: p_p.damage_type.clone(),
@@ -263,17 +256,9 @@ pub fn inflict_damage_system(
     mut health_query: Query<&mut Health>,
 ) {
     for ev in damage_reader.read() {
-        println!(
-            "Entity {:?} incurred {} damage!",
-            ev.target, ev.damage_value
-        );
         if let Ok(mut target_health) = health_query.get_mut(ev.target) {
             let total_damage = ev.damage_value;
             target_health.value -= total_damage;
-            println!(
-                "Entity {:?} now has {:?} Health!",
-                ev.target, target_health.value
-            )
         }
     }
 }

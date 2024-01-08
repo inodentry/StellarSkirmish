@@ -45,6 +45,7 @@ pub fn spawn_player_system(
         },
         Health { value: 100.0 },
         Mass { value: 10.0 },
+        EntityType::Ship,
     ));
 }
 
@@ -54,7 +55,7 @@ pub fn spawn_ship_system(
     asset_server: Res<AssetServer>,
 ) {
     let window: &Window = window_query.get_single().unwrap();
-    for _ in 0..10 {
+    for _ in 0..2 {
         commands.spawn((
             SpriteBundle {
                 transform: Transform::from_xyz(
@@ -94,6 +95,7 @@ pub fn spawn_ship_system(
             },
             Health { value: 100.0 },
             Mass { value: 10.0 },
+            EntityType::Ship,
         ));
     }
 }
@@ -134,14 +136,26 @@ pub fn spawn_asteroid_system(
                     z: 0.0,
                 },
             },
+            EntityType::Asteroid,
         ));
     }
 }
 
-pub fn despawn_dead(mut commands: Commands, entity_query: Query<(Entity, &Health)>) {
-    for (entity, health) in entity_query.iter() {
+pub fn despawn_dead(
+    mut commands: Commands,
+    entity_query: Query<(Entity, &Health, &EntityType)>,
+    asset_server: Res<AssetServer>,
+) {
+    for (entity, health, et) in entity_query.iter() {
         // If an entity's health has dropped to or below 0, despawn it.
         if health.value <= 0.0 {
+            if *et == EntityType::Ship {
+                println!("Destruction sound!");
+                commands.spawn(AudioBundle {
+                    source: asset_server.load("sounds/explosionCrunch_003.ogg"),
+                    ..default()
+                });
+            }
             commands.entity(entity).despawn();
         }
     }
