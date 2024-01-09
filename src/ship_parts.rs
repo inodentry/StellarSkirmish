@@ -26,6 +26,24 @@ pub fn load_basic_torpedo() -> WeaponSystem {
     }
 }
 
+pub fn load_lunker_torpedo() -> WeaponSystem {
+    WeaponSystem {
+        name: "Basic Torpedo".to_string(),
+        value: 5.0,
+        proj_speed: 250.0, // m/s
+        proj_fuel: 300.0,
+        proj_type: ProjectileType::Torpedo,
+        proj_mass: 5.0, // kg
+        dmg_type: DamageType::Kinetic,
+        dmg: 0.0,
+        sprite_path: "sprites/projectiles/spaceMissiles_001.png".to_string(),
+        on_spawn_sprite_path: "".to_string(),
+        sound_path: "".to_string(),
+        cooldown: 0.5,
+        cd_timer: Timer::from_seconds(2.5, TimerMode::Once),
+    }
+}
+
 pub fn load_basic_laser() -> WeaponSystem {
     WeaponSystem {
         name: "Basic Laser".to_string(),

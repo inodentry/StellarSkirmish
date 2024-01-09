@@ -66,10 +66,10 @@ pub fn spawn_ship_system(
                     0.0,
                 )
                 .with_scale(GLOBAL_RESCALE_V),
-                texture: asset_server.load("sprites/ships/picket.png"),
+                texture: asset_server.load("sprites/ships/lunker.png"),
                 ..default()
             },
-            load_picket_ship(),
+            load_lunker_ship(),
             Velocity {
                 velocity: Vec3 {
                     x: 0.0,

@@ -178,6 +178,53 @@ pub fn load_picket_ship() -> (
     )
 }
 
+pub fn load_lunker_ship() -> (
+    Ship,
+    Enemy,
+    Thruster,
+    Clipping,
+    Drag,
+    CollisionBox,
+    Health,
+    Mass,
+    EntityType,
+    AITimer,
+    AITimer2,
+    SpeedyAI,
+) {
+    (
+        Ship {
+            turn_speed: f32::to_radians(1.25),
+            primary_weapon: load_basic_torpedo(),
+            secondary_weapon: load_blank_weapon(),
+            tertiary_weapon: load_blank_weapon(),
+        },
+        Enemy {},
+        load_basic_thruster(),
+        Clipping {
+            cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
+        },
+        Drag {
+            dampening_factor: 0.995,
+        },
+        CollisionBox {
+            shape: Shape::Circle,
+            width_radius: 38.0 * GLOBAL_RESCALE_C,
+            height: 38.0 * GLOBAL_RESCALE_C,
+        },
+        Health { value: 100.0 },
+        Mass { value: 140000.0 },
+        EntityType::Ship,
+        AITimer {
+            cd_timer: Timer::from_seconds(2.0, TimerMode::Once),
+        },
+        AITimer2 {
+            cd_timer: Timer::from_seconds(1.0, TimerMode::Once),
+        },
+        SpeedyAI {},
+    )
+}
+
 pub fn load_practice_ship() -> (
     Ship,
     Enemy,
