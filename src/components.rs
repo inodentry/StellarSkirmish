@@ -150,7 +150,33 @@ pub enum EntityType {
     Asteroid,
 }
 
-// Resources
+// ----------------
+// -- AI Markers --
+// ----------------
+#[derive(Component)]
+pub struct DefenderAI {}
+
+#[derive(Component)]
+pub struct DroneAI {}
+
+#[derive(Component)]
+pub struct LunkerAI {}
+
+#[derive(Component)]
+pub struct MineLayerAI {}
+
+#[derive(Component)]
+pub struct PicketAI {}
+
+#[derive(Component)]
+pub struct RammerAI {}
+
+#[derive(Component)]
+pub struct SpeedyAI {}
+
+// ---------------
+// -- Resources --
+// ---------------
 #[derive(Resource, Default)]
 pub struct WorldCoords {
     pub coords: Vec2,

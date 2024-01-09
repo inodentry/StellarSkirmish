@@ -116,6 +116,24 @@ pub fn load_practice_laser() -> WeaponSystem {
     }
 }
 
+pub fn load_drone_laser() -> WeaponSystem {
+    WeaponSystem {
+        name: "Drone Laser".to_string(),
+        value: 10.0,
+        proj_speed: 300.0,
+        proj_fuel: 100.0,
+        proj_type: ProjectileType::Laser,
+        proj_mass: 0.0,
+        dmg_type: DamageType::Radiant,
+        dmg: 5.0,
+        sprite_path: "sprites/projectiles/drone_laser.png".to_string(),
+        on_spawn_sprite_path: "".to_string(),
+        sound_path: "".to_string(),
+        cooldown: 1.0,
+        cd_timer: Timer::from_seconds(1.0, TimerMode::Once),
+    }
+}
+
 //---------------
 //-- Thrusters --
 //---------------
@@ -124,5 +142,13 @@ pub fn load_basic_thruster() -> Thruster {
         name: "Basic Thruster".to_string(),
         value: 10.0,
         force: 100000.0,
+    }
+}
+
+pub fn load_drone_thruster() -> Thruster {
+    Thruster {
+        name: "Drone Thruster".to_string(),
+        value: 10.0,
+        force: 800.0,
     }
 }

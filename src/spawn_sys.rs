@@ -44,7 +44,7 @@ pub fn spawn_player_system(
             width_radius: 38.0 * GLOBAL_RESCALE_C,
             height: 38.0 * GLOBAL_RESCALE_C,
         },
-        Health { value: 100.0 },
+        Health { value: 500.0 },
         Mass { value: 100000.0 },
         EntityType::Ship,
     ));
@@ -68,7 +68,6 @@ pub fn spawn_ship_system(
                 texture: asset_server.load("sprites/ships/playerShip2_red.png"),
                 ..default()
             },
-            Enemy {},
             load_practice_ship(),
             Velocity {
                 velocity: Vec3 {
@@ -77,21 +76,36 @@ pub fn spawn_ship_system(
                     z: 0.0,
                 },
             },
-            load_basic_thruster(),
-            Clipping {
-                cd_timer: Timer::from_seconds(0.0, TimerMode::Once),
+        ));
+    }
+}
+
+pub fn spawn_drone_system(
+    mut commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
+) {
+    let window: &Window = window_query.get_single().unwrap();
+    for _ in 0..2 {
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(
+                    random::<f32>() * window.width(),
+                    random::<f32>() * window.height(),
+                    0.0,
+                )
+                .with_scale(GLOBAL_RESCALE_V),
+                texture: asset_server.load("sprites/ships/drone.png"),
+                ..default()
             },
-            Drag {
-                dampening_factor: 0.995,
+            load_drone_ship(),
+            Velocity {
+                velocity: Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
             },
-            CollisionBox {
-                shape: Shape::Circle,
-                width_radius: 38.0 * GLOBAL_RESCALE_C,
-                height: 38.0 * GLOBAL_RESCALE_C,
-            },
-            Health { value: 100.0 },
-            Mass { value: 100000.0 },
-            EntityType::Ship,
         ));
     }
 }
@@ -184,7 +198,7 @@ pub fn setup_background_stars_system(
                 transform: Transform::from_xyz(
                     rng.gen::<f32>() * win.width(),
                     rng.gen::<f32>() * win.height(),
-                    0.0,
+                    -1.0,
                 )
                 .with_scale(GLOBAL_RESCALE_V),
                 texture: asset_server.load("sprites/effects/star2.png"),

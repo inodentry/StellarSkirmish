@@ -1,20 +1,79 @@
 use crate::components::*;
 use crate::ship_parts::*;
+use bevy::prelude::{Timer, TimerMode};
 
-pub fn load_grunt_ship() -> Ship {
-    Ship {
-        turn_speed: f32::to_radians(1.25),
-        primary_weapon: load_basic_torpedo(),
-        secondary_weapon: load_blank_weapon(),
-        tertiary_weapon: load_blank_weapon(),
-    }
+pub fn load_drone_ship() -> (
+    Ship,
+    Enemy,
+    Thruster,
+    Clipping,
+    Drag,
+    CollisionBox,
+    Health,
+    Mass,
+    EntityType,
+    DroneAI,
+) {
+    (
+        Ship {
+            turn_speed: f32::to_radians(1.0),
+            primary_weapon: load_drone_laser(),
+            secondary_weapon: load_blank_weapon(),
+            tertiary_weapon: load_blank_weapon(),
+        },
+        Enemy {},
+        load_basic_thruster(),
+        Clipping {
+            cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
+        },
+        Drag {
+            dampening_factor: 0.995,
+        },
+        CollisionBox {
+            shape: Shape::Circle,
+            width_radius: 38.0 * GLOBAL_RESCALE_C,
+            height: 38.0 * GLOBAL_RESCALE_C,
+        },
+        Health { value: 10.0 },
+        Mass { value: 1000.0 },
+        EntityType::Ship,
+        DroneAI {},
+    )
 }
 
-pub fn load_practice_ship() -> Ship {
-    Ship {
-        turn_speed: f32::to_radians(1.25),
-        primary_weapon: load_practice_laser(),
-        secondary_weapon: load_blank_weapon(),
-        tertiary_weapon: load_blank_weapon(),
-    }
+pub fn load_practice_ship() -> (
+    Ship,
+    Enemy,
+    Thruster,
+    Clipping,
+    Drag,
+    CollisionBox,
+    Health,
+    Mass,
+    EntityType,
+) {
+    (
+        Ship {
+            turn_speed: f32::to_radians(1.25),
+            primary_weapon: load_practice_laser(),
+            secondary_weapon: load_blank_weapon(),
+            tertiary_weapon: load_blank_weapon(),
+        },
+        Enemy {},
+        load_basic_thruster(),
+        Clipping {
+            cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
+        },
+        Drag {
+            dampening_factor: 0.995,
+        },
+        CollisionBox {
+            shape: Shape::Circle,
+            width_radius: 38.0 * GLOBAL_RESCALE_C,
+            height: 38.0 * GLOBAL_RESCALE_C,
+        },
+        Health { value: 10.0 },
+        Mass { value: 100000.0 },
+        EntityType::Ship,
+    )
 }

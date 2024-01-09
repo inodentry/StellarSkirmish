@@ -39,6 +39,7 @@ fn main() {
                 setup_background_stars_system.after(spawn_camera_system),
                 spawn_player_system.after(spawn_camera_system),
                 spawn_ship_system.after(spawn_camera_system),
+                spawn_drone_system.after(spawn_camera_system),
                 spawn_asteroid_system.after(spawn_camera_system),
             ),
         )
