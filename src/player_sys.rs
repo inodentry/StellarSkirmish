@@ -1,5 +1,6 @@
 use crate::components::*;
 use crate::ship_parts::*;
+use crate::traits::*;
 use bevy::prelude::*;
 use libm::atan2f;
 use std::f32::consts::PI;
@@ -70,19 +71,8 @@ pub fn player_weapons_system(
                 },
                 // The Projectile is granted value's from the ship's primary_weapon component.
                 // This depends on the type of projectile the cannon fires.
-                Projectile {
-                    speed: ship.primary_weapon.proj_speed,
-                    fuel: ship.primary_weapon.proj_fuel,
-                    projectile_type: ship.primary_weapon.proj_type.clone(),
-                    damage_type: ship.primary_weapon.dmg_type.clone(),
-                    mass: ship.primary_weapon.proj_mass,
-                    damage_value: ship.primary_weapon.dmg,
-                },
-                Phase {},
-                Velocity {
-                    velocity: transform.up()
-                        * (ship.primary_weapon.proj_speed + vel.velocity.length()),
-                },
+                ship.primary_weapon
+                    .fire(transform.up(), vel.velocity.length()),
             ));
             println!(
                 "Projectile velocity: {:?}",
