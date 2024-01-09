@@ -422,14 +422,29 @@ pub fn picket_ai_system(
 }
 
 pub fn guided_missile_ai_system(
+    mut commands: Commands,
     mut q_missile: Query<
-        (&mut Transform, &Missile, &Thruster, &mut Velocity, &Mass),
+        (
+            Entity,
+            &mut Transform,
+            &mut Missile,
+            &Thruster,
+            &mut Velocity,
+            &Mass,
+        ),
         (With<Missile>, Without<Player>),
     >,
     q_player: Query<&Transform, (With<Player>, Without<Missile>)>,
     time: Res<Time>,
 ) {
-    for (mut missile_transform, missile, thruster, mut vel, mass) in q_missile.iter_mut() {
+    for (missile_entity, mut missile_transform, mut missile, thruster, mut vel, mass) in
+        q_missile.iter_mut()
+    {
+        missile.fuel -= 1.0;
+        if missile.fuel <= 0.0 {
+            commands.entity(missile_entity).despawn();
+            continue;
+        }
         if let Ok(player_transform) = q_player.get_single() {
             // The missile self-corrects to point toward the player...
             let angle_between = angle_between(&missile_transform, &player_transform);
