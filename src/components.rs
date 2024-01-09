@@ -1,3 +1,4 @@
+use crate::traits::*;
 use bevy::prelude::*;
 
 /// This file contains the ECS Components to make the game run in addition to containing
@@ -66,6 +67,26 @@ pub struct WeaponSystem {
     pub dmg_type: DamageType,
     pub cd_timer: Timer,
     pub dmg: f32,
+}
+impl Weapon<(Projectile, Phase, Velocity)> for WeaponSystem {
+    fn fire(&mut self, vel_dir: Vec3, origin_speed: f32) -> (Projectile, Phase, Velocity) {
+        println!("vel_dir: {:?} | origin speed: {}", vel_dir, origin_speed);
+        self.cd_timer.reset();
+        (
+            Projectile {
+                speed: self.proj_speed,
+                fuel: self.proj_fuel,
+                projectile_type: self.proj_type.clone(),
+                damage_type: self.dmg_type.clone(),
+                mass: self.proj_mass,
+                damage_value: self.dmg,
+            },
+            Phase {},
+            Velocity {
+                velocity: vel_dir * (self.proj_speed + origin_speed),
+            },
+        )
+    }
 }
 
 #[derive(Component)]
@@ -173,6 +194,9 @@ pub struct RammerAI {}
 
 #[derive(Component)]
 pub struct SpeedyAI {}
+
+#[derive(Component)]
+pub struct TurretAI {}
 
 // ---------------
 // -- Resources --

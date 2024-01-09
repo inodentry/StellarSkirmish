@@ -1,5 +1,6 @@
 use crate::components::*;
 use crate::ship_parts::*;
+use crate::traits::*;
 use bevy::prelude::*;
 use libm::atan2f;
 use std::f32::consts::PI;
@@ -70,26 +71,14 @@ pub fn player_weapons_system(
                 },
                 // The Projectile is granted value's from the ship's primary_weapon component.
                 // This depends on the type of projectile the cannon fires.
-                Projectile {
-                    speed: ship.primary_weapon.proj_speed,
-                    fuel: ship.primary_weapon.proj_fuel,
-                    projectile_type: ship.primary_weapon.proj_type.clone(),
-                    damage_type: ship.primary_weapon.dmg_type.clone(),
-                    mass: ship.primary_weapon.proj_mass,
-                    damage_value: ship.primary_weapon.dmg,
-                },
-                Phase {},
-                Velocity {
-                    velocity: transform.up()
-                        * (ship.primary_weapon.proj_speed + vel.velocity.length()),
-                },
+                ship.primary_weapon
+                    .fire(transform.up(), vel.velocity.length()),
             ));
             println!(
                 "Projectile velocity: {:?}",
                 transform.up() * (ship.primary_weapon.proj_speed + vel.velocity.length())
             );
             println!("Ship velocity: {:?}", vel.velocity);
-            ship.primary_weapon.cd_timer.reset()
         }
         // Fire Secondary Weapon
         if mouse_input.pressed(MouseButton::Left) && ship.secondary_weapon.cd_timer.finished() {
@@ -121,21 +110,9 @@ pub fn player_weapons_system(
                 },
                 // The Projectile is granted value's from the ship's secondary_weapon component.
                 // This depends on the type of projectile the cannon fires.
-                Projectile {
-                    speed: ship.secondary_weapon.proj_speed,
-                    fuel: ship.secondary_weapon.proj_fuel,
-                    projectile_type: ship.secondary_weapon.proj_type.clone(),
-                    damage_type: ship.secondary_weapon.dmg_type.clone(),
-                    mass: ship.secondary_weapon.proj_mass,
-                    damage_value: ship.secondary_weapon.dmg,
-                },
-                Phase {},
-                Velocity {
-                    velocity: transform.up()
-                        * (ship.secondary_weapon.proj_speed + vel.velocity.length()),
-                },
+                ship.primary_weapon
+                    .fire(transform.up(), vel.velocity.length()),
             ));
-            ship.secondary_weapon.cd_timer.reset()
         }
 
         // Fire Tertiary Weapon
@@ -173,21 +150,9 @@ pub fn player_weapons_system(
                 },
                 // The Projectile is granted value's from the ship's tertiary_weapon component.
                 // This depends on the type of projectile the cannon fires.
-                Projectile {
-                    speed: ship.tertiary_weapon.proj_speed,
-                    fuel: ship.tertiary_weapon.proj_fuel,
-                    projectile_type: ship.tertiary_weapon.proj_type.clone(),
-                    damage_type: ship.tertiary_weapon.dmg_type.clone(),
-                    mass: ship.tertiary_weapon.proj_mass,
-                    damage_value: ship.tertiary_weapon.dmg,
-                },
-                Phase {},
-                Velocity {
-                    velocity: projectile_transform.up()
-                        * (ship.tertiary_weapon.proj_speed + vel.velocity.length()),
-                },
+                ship.primary_weapon
+                    .fire(projectile_transform.up(), vel.velocity.length()),
             ));
-            ship.tertiary_weapon.cd_timer.reset()
         }
     }
 }

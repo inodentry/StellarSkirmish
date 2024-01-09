@@ -1,15 +1,19 @@
 use crate::components::*;
+use crate::traits::*;
 use bevy::prelude::*;
 use libm::atan2f;
 use std::f32::consts::PI;
 
-pub fn enemy_ai_system(
+pub fn turret_ai_system(
     mut commands: Commands,
-    mut q_enemy: Query<(&mut Ship, &mut Transform, &Velocity), (With<Enemy>, Without<Player>)>,
+    mut q_enemy: Query<
+        (&mut Ship, &mut Transform, &Velocity),
+        (With<Enemy>, With<TurretAI>, Without<Player>),
+    >,
     q_player: Query<(&Transform), (With<Player>, Without<Enemy>)>,
     asset_server: Res<AssetServer>,
 ) {
-    // Start out very basic AI to have the other ship look at the player.
+    // Simple turret AI. Turn toward the player, and fire repeatedly.
     for (mut enemy_ship, mut enemy_transform, vel) in q_enemy.iter_mut() {
         if let Ok(player_transform) = q_player.get_single() {
             // Calculate the angle between the enemy and the player.
@@ -51,21 +55,10 @@ pub fn enemy_ai_system(
                     },
                     // The Projectile is granted value's from the ship's primary_weapon component.
                     // This depends on the type of projectile the cannon fires.
-                    Projectile {
-                        speed: enemy_ship.primary_weapon.proj_speed,
-                        fuel: enemy_ship.primary_weapon.proj_fuel,
-                        projectile_type: enemy_ship.primary_weapon.proj_type.clone(),
-                        damage_type: enemy_ship.primary_weapon.dmg_type.clone(),
-                        mass: enemy_ship.primary_weapon.proj_mass,
-                        damage_value: enemy_ship.primary_weapon.dmg,
-                    },
-                    Phase {},
-                    Velocity {
-                        velocity: enemy_transform.up()
-                            * (enemy_ship.primary_weapon.proj_speed + vel.velocity.length()),
-                    },
+                    enemy_ship
+                        .primary_weapon
+                        .fire(projectile_transform.up(), vel.velocity.length()),
                 ));
-                enemy_ship.primary_weapon.cd_timer.reset()
             }
         }
     }
