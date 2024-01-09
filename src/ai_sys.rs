@@ -243,3 +243,82 @@ pub fn drone_ai_system(
         }
     }
 }
+
+pub fn rammer_ai_system(
+    mut q_enemy: Query<
+        (
+            &mut Ship,
+            &mut Transform,
+            &mut Velocity,
+            &mut AITimer,
+            &mut AITimer2,
+            &Mass,
+            &Thruster,
+        ),
+        (With<Enemy>, With<RammerAI>, Without<Player>),
+    >,
+    q_player: Query<(&Transform), (With<Player>, Without<Enemy>)>,
+    time: Res<Time>,
+) {
+    // The intended behavior of the "rammer" enemy is to fly into close-range of the player.
+    // Once close-range, get a brief turbo boost to try to ram into the player, then wait a while
+    // to recharge the turbo.
+    // Can be viewed as a FSM.
+    // State 1: Fly toward player.
+    // State 2: Ensure player is in front, then ram.
+    // State 3: Wait for the ramming timer to cooldown.
+    // If far from player, enter state 1. Otherwise alternate states 2 and 3.
+
+    for (
+        mut enemy_ship,
+        mut enemy_transform,
+        mut vel,
+        mut ai_timer,
+        mut ai_timer2,
+        mass,
+        thruster,
+    ) in q_enemy.iter_mut()
+    {
+        if let Ok(player_transform) = q_player.get_single() {
+            // Calculate the distance between the enemy and the player.
+            let distance_between = enemy_transform
+                .translation
+                .distance(player_transform.translation);
+
+            // Calculate the angle between the enemy and the player.
+            let y = player_transform.translation.y - enemy_transform.translation.y;
+            let x = player_transform.translation.x - enemy_transform.translation.x;
+            let target_angle = atan2f(y, x);
+
+            let angle_between = enemy_transform
+                .rotation
+                .angle_between(Quat::from_rotation_z(target_angle))
+                - PI / 2.0;
+
+            // If we are too far from player, move toward the player by turning and engaging thruster.
+            if distance_between > 250.0 {
+                turn_toward(&mut enemy_transform, enemy_ship.turn_speed, angle_between);
+                let acceleration = enemy_transform.up() * thruster.force / mass.value;
+                vel.velocity += acceleration * time.delta_seconds();
+                // There should be a global max speed and an individual max speed.
+                // For now instead of dealing with it, just put in a reasonable literal.
+                if vel.velocity.length() > MAX_SPEED {
+                    vel.velocity = vel.velocity.clamp_length_max(MAX_SPEED)
+                }
+            } else if !ai_timer.cd_timer.finished() && libm::fabsf(angle_between) < 0.20 {
+                // Player is close and in front of the rammer. Try ramming.
+                ai_timer.cd_timer.tick(time.delta());
+                // Enemy is close enough to the player and is transitioning to state 2. Turn and fire on player.
+                turn_toward(&mut enemy_transform, enemy_ship.turn_speed, angle_between);
+                let acceleration = enemy_transform.up() * 10.0 * thruster.force / mass.value;
+                vel.velocity += acceleration * time.delta_seconds();
+            } else if ai_timer2.cd_timer.finished() {
+                ai_timer.cd_timer.reset();
+                ai_timer2.cd_timer.reset();
+            } else {
+                turn_toward(&mut enemy_transform, enemy_ship.turn_speed, angle_between);
+                ai_timer2.cd_timer.tick(time.delta());
+            }
+        }
+    }
+}

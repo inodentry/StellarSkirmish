@@ -60,6 +60,7 @@ fn main() {
                 turret_ai_system,
                 speedy_ai_system,
                 drone_ai_system,
+                rammer_ai_system,
                 handle_self_destruct_system,
             ),
         )

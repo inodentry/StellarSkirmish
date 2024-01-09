@@ -65,10 +65,10 @@ pub fn spawn_ship_system(
                     0.0,
                 )
                 .with_scale(GLOBAL_RESCALE_V),
-                texture: asset_server.load("sprites/ships/playerShip2_red.png"),
+                texture: asset_server.load("sprites/ships/rammer.png"),
                 ..default()
             },
-            load_speedy_ship(),
+            load_rammer_ship(),
             Velocity {
                 velocity: Vec3 {
                     x: 0.0,
