@@ -129,9 +129,52 @@ pub fn load_rammer_ship() -> (
             cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
         },
         AITimer2 {
-            cd_timer: Timer::from_seconds(5.0, TimerMode::Once),
+            cd_timer: Timer::from_seconds(3.0, TimerMode::Once),
         },
         RammerAI {},
+    )
+}
+
+pub fn load_picket_ship() -> (
+    Ship,
+    Enemy,
+    Thruster,
+    Clipping,
+    Drag,
+    CollisionBox,
+    Health,
+    Mass,
+    EntityType,
+    AITimer,
+    PicketAI,
+) {
+    (
+        Ship {
+            turn_speed: f32::to_radians(2.0),
+            primary_weapon: load_practice_laser(),
+            secondary_weapon: load_blank_weapon(),
+            tertiary_weapon: load_blank_weapon(),
+        },
+        Enemy {},
+        load_basic_thruster(),
+        Clipping {
+            cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
+        },
+        Drag {
+            dampening_factor: 0.995,
+        },
+        CollisionBox {
+            shape: Shape::Circle,
+            width_radius: 38.0 * GLOBAL_RESCALE_C,
+            height: 38.0 * GLOBAL_RESCALE_C,
+        },
+        Health { value: 100.0 },
+        Mass { value: 80000.0 },
+        EntityType::Ship,
+        AITimer {
+            cd_timer: Timer::from_seconds(3.5, TimerMode::Once),
+        },
+        PicketAI {},
     )
 }
 

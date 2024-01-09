@@ -41,13 +41,13 @@ fn main() {
                 spawn_player_system.after(spawn_camera_system),
                 spawn_ship_system.after(spawn_camera_system),
                 spawn_drone_system.after(spawn_camera_system),
-                spawn_asteroid_system.after(spawn_camera_system),
+                //spawn_asteroid_system.after(spawn_camera_system),
             ),
         )
         // Register Events
         .add_event::<DamageEvent>()
         .add_event::<CollisionEvent>()
-        .add_event::<SpawnShipEvent>()
+        .add_event::<SpawnGuidedMissileEvent>()
         // Update Systems
         .add_systems(
             Update,
@@ -61,7 +61,10 @@ fn main() {
                 speedy_ai_system,
                 drone_ai_system,
                 rammer_ai_system,
+                picket_ai_system,
                 handle_self_destruct_system,
+                spawn_missile_system,
+                guided_missile_ai_system,
             ),
         )
         .add_systems(

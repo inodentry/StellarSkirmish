@@ -152,3 +152,11 @@ pub fn load_drone_thruster() -> Thruster {
         force: 800.0,
     }
 }
+
+pub fn load_missile_thruster() -> Thruster {
+    Thruster {
+        name: "Missile Thruster".to_string(),
+        value: 5.0,
+        force: 100.0,
+    }
+}

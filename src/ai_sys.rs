@@ -1,4 +1,5 @@
 use crate::components::*;
+use crate::events::SpawnGuidedMissileEvent;
 use crate::traits::*;
 use bevy::prelude::*;
 use libm::atan2f;
@@ -12,6 +13,19 @@ fn turn_toward(transform: &mut Transform, turn_speed: f32, angle_between: f32) {
     } else {
         transform.rotate_z(-turn_speed);
     }
+}
+
+fn angle_between(transform_a: &Transform, transform_b: &Transform) -> f32 {
+    // Calculate the angle between a and b from the perspective of a.
+    let y = transform_b.translation.y - transform_a.translation.y;
+    let x = transform_b.translation.x - transform_a.translation.x;
+    let target_angle = atan2f(y, x);
+
+    let angle_between = transform_a
+        .rotation
+        .angle_between(Quat::from_rotation_z(target_angle))
+        - PI / 2.0;
+    angle_between
 }
 
 pub fn turret_ai_system(
@@ -318,6 +332,114 @@ pub fn rammer_ai_system(
             } else {
                 turn_toward(&mut enemy_transform, enemy_ship.turn_speed, angle_between);
                 ai_timer2.cd_timer.tick(time.delta());
+            }
+        }
+    }
+}
+
+pub fn picket_ai_system(
+    mut q_enemy: Query<
+        (
+            &mut Ship,
+            &mut Transform,
+            &mut Velocity,
+            &mut AITimer,
+            &Mass,
+            &Thruster,
+        ),
+        (With<Enemy>, With<PicketAI>, Without<Player>),
+    >,
+    q_player: Query<(&Transform), (With<Player>, Without<Enemy>)>,
+    time: Res<Time>,
+    mut missile_writer: EventWriter<SpawnGuidedMissileEvent>,
+) {
+    // The intended behavior of the "picket" enemy is to avoid the player and occasionally launch guided missiles.
+    // Once in long-range, fire guided missiles when available. Periodically move a litt.
+    // This enemy is a "UFO" shape. To give the appearance of it moving less smoothly than others, it might
+    // be given an unusually high drag factor, possibly even 1.0, which would cause it to immediately halt when not
+    // subjected to force. In other words, if the drag is 1.0, it cannot drift due to any inertia.
+    // Can be viewed as a FSM.
+    // State 1: Fly away from player until long range..
+    // State 2: Fire guided missile at player.
+    // If far from player, enter state 1. Otherwise alternate states 2 and 3 every few seconds.
+
+    for (mut enemy_ship, mut enemy_transform, mut vel, mut ai_timer, mass, thruster) in
+        q_enemy.iter_mut()
+    {
+        if let Ok(player_transform) = q_player.get_single() {
+            // Calculate the distance between the enemy and the player.
+            let distance_between = enemy_transform
+                .translation
+                .distance(player_transform.translation);
+
+            // Calculate the angle between the enemy and the player.
+            let y = player_transform.translation.y - enemy_transform.translation.y;
+            let x = player_transform.translation.x - enemy_transform.translation.x;
+            let target_angle = atan2f(y, x);
+
+            let angle_between = enemy_transform
+                .rotation
+                .angle_between(Quat::from_rotation_z(target_angle))
+                - PI / 2.0;
+
+            // If we are too close to the player, move away from the player by turning and engaging thruster.
+            if distance_between < 600.0 {
+                turn_toward(&mut enemy_transform, enemy_ship.turn_speed, angle_between);
+                let acceleration = -enemy_transform.up() * thruster.force / mass.value;
+                vel.velocity += acceleration * time.delta_seconds();
+                if vel.velocity.length() > MAX_SPEED {
+                    vel.velocity = vel.velocity.clamp_length_max(MAX_SPEED)
+                }
+            } else if ai_timer.cd_timer.finished() {
+                ai_timer.cd_timer.reset();
+                // Enemy is far enough from the player and is transitioning to state 2. Fire guided missiles.
+                turn_toward(&mut enemy_transform, enemy_ship.turn_speed, angle_between);
+
+                if enemy_ship.primary_weapon.cd_timer.finished() {
+                    println!("Attempting to fire missile...");
+                    let mut projectile_transform = Transform::from_xyz(
+                        enemy_transform.translation.x,
+                        enemy_transform.translation.y,
+                        0.0,
+                    )
+                    .with_scale(GLOBAL_RESCALE_V);
+                    // Modify it a little so that it originates from just in front of the firing ship.
+                    projectile_transform.translation +=
+                        enemy_transform.up() * 75.0 * GLOBAL_RESCALE_V;
+                    // Ensure that it is rotated in a way that aligns with the firing ship.
+                    projectile_transform.rotation = enemy_transform.rotation.clone();
+                    println!("Writing event to fire missile...");
+                    missile_writer.send(SpawnGuidedMissileEvent {
+                        transform: projectile_transform,
+                    });
+                }
+            } else {
+                turn_toward(&mut enemy_transform, enemy_ship.turn_speed, angle_between);
+                ai_timer.cd_timer.tick(time.delta());
+            }
+        }
+    }
+}
+
+pub fn guided_missile_ai_system(
+    mut q_missile: Query<
+        (&mut Transform, &Missile, &Thruster, &mut Velocity, &Mass),
+        (With<Missile>, Without<Player>),
+    >,
+    q_player: Query<&Transform, (With<Player>, Without<Missile>)>,
+    time: Res<Time>,
+) {
+    for (mut missile_transform, missile, thruster, mut vel, mass) in q_missile.iter_mut() {
+        if let Ok(player_transform) = q_player.get_single() {
+            // The missile self-corrects to point toward the player...
+            let angle_between = angle_between(&missile_transform, &player_transform);
+            turn_toward(&mut missile_transform, missile.turn_speed, angle_between);
+
+            // ...and constantly fires its thruster until collision (or running out of fuel).
+            let acceleration = missile_transform.up() * thruster.force / mass.value;
+            vel.velocity += acceleration * time.delta_seconds();
+            if vel.velocity.length() > (MAX_SPEED - 100.0) {
+                vel.velocity = vel.velocity.clamp_length_max(MAX_SPEED - 100.0)
             }
         }
     }

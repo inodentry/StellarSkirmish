@@ -1,4 +1,5 @@
 use crate::components::*;
+use crate::events::SpawnGuidedMissileEvent;
 use crate::ship_parts::*;
 use crate::ships::*;
 use bevy::prelude::*;
@@ -65,10 +66,10 @@ pub fn spawn_ship_system(
                     0.0,
                 )
                 .with_scale(GLOBAL_RESCALE_V),
-                texture: asset_server.load("sprites/ships/rammer.png"),
+                texture: asset_server.load("sprites/ships/picket.png"),
                 ..default()
             },
-            load_rammer_ship(),
+            load_picket_ship(),
             Velocity {
                 velocity: Vec3 {
                     x: 0.0,
@@ -205,5 +206,47 @@ pub fn setup_background_stars_system(
                 ..default()
             }),
         );
+    }
+}
+
+pub fn spawn_missile_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut spawn_reader: EventReader<SpawnGuidedMissileEvent>,
+) {
+    for ev in spawn_reader.read() {
+        println!("Missile event received!");
+        commands.spawn((
+            SpriteBundle {
+                transform: ev.transform,
+                texture: asset_server.load("sprites/projectiles/guided_missile_red.png"),
+                ..default()
+            },
+            Clipping {
+                cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
+            },
+            CollisionBox {
+                shape: Shape::Circle,
+                width_radius: 42.0 * GLOBAL_RESCALE_C,
+                height: 42.0 * GLOBAL_RESCALE_C,
+            },
+            Health { value: 10.0 },
+            Mass { value: 100.0 },
+            Drag {
+                dampening_factor: 0.995,
+            },
+            Velocity {
+                velocity: Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+            },
+            load_missile_thruster(),
+            Missile {
+                turn_speed: 0.10,
+                fuel: 800.0,
+            },
+        ));
     }
 }

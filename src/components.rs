@@ -113,6 +113,12 @@ pub struct Enemy {}
 pub struct Asteroid {}
 
 #[derive(Component)]
+pub struct Missile {
+    pub turn_speed: f32,
+    pub fuel: f32,
+}
+
+#[derive(Component)]
 pub struct Health {
     pub value: f32,
 }
