@@ -177,3 +177,69 @@ pub fn speedy_ai_system(
         }
     }
 }
+
+pub fn drone_ai_system(
+    mut commands: Commands,
+    mut q_enemy: Query<
+        (&mut Ship, &mut Transform, &mut Velocity, &Mass, &Thruster),
+        (With<Enemy>, With<DroneAI>, Without<Player>),
+    >,
+    q_player: Query<(&Transform), (With<Player>, Without<Enemy>)>,
+    asset_server: Res<AssetServer>,
+    time: Res<Time>,
+) {
+    // The intended behavior of the "drone" enemy is to fly into close-range of the player.
+    // Once mid-range, it continuously fires.
+
+    for (mut enemy_ship, mut enemy_transform, mut vel, mass, thruster) in q_enemy.iter_mut() {
+        if let Ok(player_transform) = q_player.get_single() {
+            // Calculate the distance between the enemy and the player.
+            let distance_between = enemy_transform
+                .translation
+                .distance(player_transform.translation);
+
+            // Calculate the angle between the enemy and the player.
+            let y = player_transform.translation.y - enemy_transform.translation.y;
+            let x = player_transform.translation.x - enemy_transform.translation.x;
+            let target_angle = atan2f(y, x);
+
+            let angle_between = enemy_transform
+                .rotation
+                .angle_between(Quat::from_rotation_z(target_angle))
+                - PI / 2.0;
+
+            turn_toward(&mut enemy_transform, enemy_ship.turn_speed, angle_between);
+            // If we are too far from player, move toward the player by engaging thruster.
+            if distance_between > 250.0 {
+                let acceleration = enemy_transform.up() * thruster.force / mass.value;
+                vel.velocity += acceleration * time.delta_seconds();
+                // There should be a global max speed and an individual max speed.
+                // For now instead of dealing with it, just put in a reasonable literal.
+                if vel.velocity.length() > MAX_SPEED {
+                    vel.velocity = vel.velocity.clamp_length_max(MAX_SPEED)
+                }
+            } else if enemy_ship.primary_weapon.cd_timer.finished() {
+                let mut projectile_transform = Transform::from_xyz(
+                    enemy_transform.translation.x,
+                    enemy_transform.translation.y,
+                    0.0,
+                )
+                .with_scale(GLOBAL_RESCALE_V);
+                // Modify it a little so that it originates from just in front of the firing ship.
+                projectile_transform.translation += enemy_transform.up() * 75.0 * GLOBAL_RESCALE_V;
+                // Ensure that it is rotated in a way that aligns with the firing ship.
+                projectile_transform.rotation = enemy_transform.rotation.clone();
+                commands.spawn((
+                    SpriteBundle {
+                        transform: projectile_transform,
+                        texture: asset_server.load(&enemy_ship.primary_weapon.sprite_path),
+                        ..default()
+                    },
+                    enemy_ship
+                        .primary_weapon
+                        .fire(enemy_transform.up(), vel.velocity.length()),
+                ));
+            }
+        }
+    }
+}

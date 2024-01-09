@@ -22,7 +22,7 @@ pub fn load_drone_ship() -> (
             tertiary_weapon: load_blank_weapon(),
         },
         Enemy {},
-        load_basic_thruster(),
+        load_drone_thruster(),
         Clipping {
             cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
         },
@@ -34,7 +34,7 @@ pub fn load_drone_ship() -> (
             width_radius: 38.0 * GLOBAL_RESCALE_C,
             height: 38.0 * GLOBAL_RESCALE_C,
         },
-        Health { value: 10.0 },
+        Health { value: 100.0 },
         Mass { value: 1000.0 },
         EntityType::Ship,
         DroneAI {},
