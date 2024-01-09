@@ -187,6 +187,7 @@ pub enum EntityType {
     Player,
     Ship,
     Asteroid,
+    Missile,
 }
 
 // ----------------

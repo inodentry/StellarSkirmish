@@ -48,6 +48,7 @@ fn main() {
         .add_event::<DamageEvent>()
         .add_event::<CollisionEvent>()
         .add_event::<SpawnGuidedMissileEvent>()
+        .add_event::<MissileDetonationEvent>()
         // Update Systems
         .add_systems(
             Update,
@@ -77,6 +78,8 @@ fn main() {
                 collision_calculation_system,
                 collision_resolution_system,
                 check_projectile_collisions,
+                check_missile_collisions_system,
+                handle_denotation_event_system,
             ),
         )
         .add_systems(Update, tick_timers)

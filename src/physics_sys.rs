@@ -17,12 +17,12 @@ pub fn movement_system(
             velocity.velocity = velocity.velocity.normalize() * 200.0
         }
 
-        // If this entity has the Drag component, apply unrestricted global dampening to its velocity.
+        // If this entity has the Drag component, apply dampening to its velocity.
         // Otherwise, apply global dampening, but don't slow to 0.0. The object can drift slowly indefinitely.
         // The component isn't actually used, we're just checking whether the entity has it.
-        if let Ok(_) = drag_query.get(entity) {
+        if let Ok(drag) = drag_query.get(entity) {
             if velocity.velocity.length() > 0.0 {
-                velocity.velocity *= DAMPENING_FACTOR;
+                velocity.velocity *= drag.dampening_factor;
             }
         } else if velocity.velocity.length() > 0.25 {
             velocity.velocity *= DAMPENING_FACTOR;
@@ -51,7 +51,6 @@ pub fn move_projectiles_system(
 /// This system is checks for collisions between entities with the Clipping component and calculates the
 /// physics result of the collision to be sent as Events.
 pub fn collision_calculation_system(
-    mut commands: Commands,
     mut q_thing: Query<
         (
             Entity,
@@ -63,7 +62,6 @@ pub fn collision_calculation_system(
         ),
         (With<Clipping>),
     >,
-    asset_server: Res<AssetServer>,
     mut damage_writer: EventWriter<DamageEvent>,
     mut collision_writer: EventWriter<CollisionEvent>,
 ) {
@@ -81,11 +79,11 @@ pub fn collision_calculation_system(
                 let ship_radius = thing1_b.width_radius;
                 let asteroid_radius = thing2_b.width_radius;
                 if distance < ship_radius + asteroid_radius {
-                    // Thump!
-                    commands.spawn(AudioBundle {
-                        source: asset_server.load("sounds/impactSoft_medium_001.ogg"),
-                        ..default()
-                    });
+                    // Thump! ( this is disabled now, it's annoying and lags the audio since it happens so often.
+                    // commands.spawn(AudioBundle {
+                    //     source: asset_server.load("sounds/impactSoft_medium_001.ogg"),
+                    //     ..default()
+                    // });
 
                     // Get the pre-collision speed sum, which will be the max post-collision speed.
                     let max_speed = thing1_v.velocity.length() + thing2_v.velocity.length();
@@ -226,17 +224,8 @@ pub fn check_projectile_collisions(
         (Entity, &mut Transform, &CollisionBox),
         (With<Clipping>, Without<Phase>),
     >,
-    mut phase_query: Query<
-        (
-            Entity,
-            &mut Transform,
-            //&CollisionBox,
-            //&mut Velocity,
-            //&Mass,
-            &Projectile,
-        ),
-        (With<Phase>, Without<Clipping>),
-    >,
+    mut phase_query: Query<(Entity, &mut Transform, &Projectile), (With<Phase>, Without<Clipping>)>,
+    asset_server: Res<AssetServer>,
     mut damage_writer: EventWriter<DamageEvent>,
 ) {
     for (n_e, mut n_t, n_c) in clipping_query.iter_mut() {
@@ -257,7 +246,16 @@ pub fn check_projectile_collisions(
                         damage_value: p_p.damage_value,
                     });
                 } else {
-                    println!("Hit for {} of KE", p_p.mass * p_p.speed.powf(2.0));
+                    commands.spawn((
+                        SpriteBundle {
+                            transform: p_t.clone().with_scale(GLOBAL_RESCALE_V * 0.5),
+                            texture: asset_server.load("sprites/effects/explosion_tmp.png"),
+                            ..default()
+                        },
+                        SelfDestruct {
+                            cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
+                        },
+                    ));
                     damage_writer.send(DamageEvent {
                         target: n_e,
                         damage_type: p_p.damage_type.clone(),
@@ -279,6 +277,63 @@ pub fn inflict_damage_system(
         if let Ok(mut target_health) = health_query.get_mut(ev.target) {
             let total_damage = ev.damage_value;
             target_health.value -= total_damage;
+        }
+    }
+}
+
+/// This system checks specifically for missile collisions with objects that have clipping.
+/// When a missile hits any entity that has clipping, it detonates.
+pub fn check_missile_collisions_system(
+    q_missile: Query<(Entity, &CollisionBox, &Transform), With<Missile>>,
+    q_clipping: Query<(&CollisionBox, &Transform), Without<Missile>>,
+    mut detonation_event_writer: EventWriter<MissileDetonationEvent>,
+) {
+    for (missile_entity, missile_box, missile_transform) in q_missile.iter() {
+        for (clip_box, clip_transform) in q_clipping.iter() {
+            let distance = clip_transform
+                .translation
+                .distance(missile_transform.translation);
+            let n_radius = clip_box.width_radius;
+            // Replace this with an actual collision box later!
+            let p_radius = missile_box.width_radius;
+            if distance < n_radius + p_radius {
+                // The missile collided with something, register the detonation event.
+                detonation_event_writer.send(MissileDetonationEvent {
+                    entity: missile_entity,
+                });
+            }
+        }
+    }
+}
+
+pub fn handle_denotation_event_system(
+    mut commands: Commands,
+    mut q_missile: Query<&Transform, With<Missile>>,
+    mut detonation_reader: EventReader<MissileDetonationEvent>,
+    asset_server: Res<AssetServer>,
+) {
+    for ev in detonation_reader.read() {
+        if let Ok((transform)) = q_missile.get(ev.entity) {
+            commands.spawn((
+                AudioBundle {
+                    source: asset_server.load("sounds/explosionCrunch_003.ogg"),
+                    ..default()
+                },
+                SelfDestruct {
+                    cd_timer: Timer::from_seconds(0.5, TimerMode::Once),
+                },
+            ));
+            commands.spawn((
+                SpriteBundle {
+                    transform: transform.clone(),
+                    texture: asset_server.load("sprites/effects/explosion_tmp.png"),
+                    ..default()
+                },
+                SelfDestruct {
+                    cd_timer: Timer::from_seconds(0.25, TimerMode::Once),
+                },
+            ));
+            commands.entity(ev.entity).despawn();
         }
     }
 }

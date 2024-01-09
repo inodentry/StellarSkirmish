@@ -163,7 +163,7 @@ pub fn despawn_dead_system(
     for (entity, health, et) in entity_query.iter() {
         // If an entity's health has dropped to or below 0, despawn it.
         if health.value <= 0.0 {
-            if *et == EntityType::Ship {
+            if *et == EntityType::Ship || *et == EntityType::Missile {
                 println!("Destruction sound!");
                 commands.spawn(AudioBundle {
                     source: asset_server.load("sounds/explosionCrunch_003.ogg"),
@@ -227,8 +227,8 @@ pub fn spawn_missile_system(
             },
             CollisionBox {
                 shape: Shape::Circle,
-                width_radius: 42.0 * GLOBAL_RESCALE_C,
-                height: 42.0 * GLOBAL_RESCALE_C,
+                width_radius: 30.0 * GLOBAL_RESCALE_C,
+                height: 30.0 * GLOBAL_RESCALE_C,
             },
             Health { value: 10.0 },
             Mass { value: 100.0 },
@@ -247,6 +247,7 @@ pub fn spawn_missile_system(
                 turn_speed: 0.10,
                 fuel: 800.0,
             },
+            EntityType::Missile,
         ));
     }
 }
