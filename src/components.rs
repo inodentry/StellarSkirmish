@@ -39,6 +39,8 @@ pub const MS_TO_PS: f32 = 3.0;
 // physically accurate values and calculations for energy, but not need to compensate with millions of hit points.
 pub const KE_TO_DMG: f32 = 0.001;
 
+pub const MAX_SPEED: f32 = 300.0;
+
 // Bevy Components
 
 // Components relating to ships
@@ -139,6 +141,16 @@ pub struct Clipping {
 
 #[derive(Component)]
 pub struct SelfDestruct {
+    pub cd_timer: Timer,
+}
+
+#[derive(Component)]
+pub struct AITimer {
+    pub cd_timer: Timer,
+}
+
+#[derive(Component)]
+pub struct AITimer2 {
     pub cd_timer: Timer,
 }
 

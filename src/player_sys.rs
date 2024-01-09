@@ -110,7 +110,7 @@ pub fn player_weapons_system(
                 },
                 // The Projectile is granted value's from the ship's secondary_weapon component.
                 // This depends on the type of projectile the cannon fires.
-                ship.primary_weapon
+                ship.secondary_weapon
                     .fire(transform.up(), vel.velocity.length()),
             ));
         }
@@ -150,7 +150,7 @@ pub fn player_weapons_system(
                 },
                 // The Projectile is granted value's from the ship's tertiary_weapon component.
                 // This depends on the type of projectile the cannon fires.
-                ship.primary_weapon
+                ship.tertiary_weapon
                     .fire(projectile_transform.up(), vel.velocity.length()),
             ));
         }

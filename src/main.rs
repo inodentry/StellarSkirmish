@@ -7,6 +7,7 @@ mod player_sys;
 mod ship_parts;
 mod ships;
 mod spawn_sys;
+mod traits;
 
 use ai_sys::*;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
@@ -56,7 +57,8 @@ fn main() {
                 wrap_clipping_location_system,
                 despawn_dead_system,
                 test_weapon_toggle,
-                enemy_ai_system,
+                turret_ai_system,
+                speedy_ai_system,
                 handle_self_destruct_system,
             ),
         )

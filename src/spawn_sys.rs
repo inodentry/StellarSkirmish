@@ -68,7 +68,7 @@ pub fn spawn_ship_system(
                 texture: asset_server.load("sprites/ships/playerShip2_red.png"),
                 ..default()
             },
-            load_practice_ship(),
+            load_speedy_ship(),
             Velocity {
                 velocity: Vec3 {
                     x: 0.0,
@@ -117,7 +117,7 @@ pub fn spawn_asteroid_system(
 ) {
     let window = window_query.get_single().unwrap();
     let mut rng = thread_rng();
-    for _ in 0..20 {
+    for _ in 0..30 {
         let random_x = rng.gen::<f32>() * window.width();
         let random_y = rng.gen::<f32>() * window.height();
         let asteroid_rescaler = rng.gen::<f32>() * 2.0;
