@@ -18,6 +18,7 @@ use events::*;
 use physics_sys::*;
 use player_sys::*;
 use spawn_sys::*;
+use std::fs;
 
 fn main() {
     App::new()
@@ -32,6 +33,9 @@ fn main() {
         .insert_resource(WorldCoords {
             coords: Vec2::default(),
         })
+        .insert_resource(LevelScript {
+            txt: fs::read_to_string("assets/levels/level_script.txt").unwrap(),
+        })
         // Startup Systems
         .add_systems(
             Startup,
@@ -39,8 +43,7 @@ fn main() {
                 spawn_camera_system,
                 setup_background_stars_system.after(spawn_camera_system),
                 spawn_player_system.after(spawn_camera_system),
-                spawn_ship_system.after(spawn_camera_system),
-                spawn_drone_system.after(spawn_camera_system),
+                spawn_ships_system.after(spawn_camera_system),
                 //spawn_asteroid_system.after(spawn_camera_system),
             ),
         )

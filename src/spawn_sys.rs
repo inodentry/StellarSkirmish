@@ -51,64 +51,160 @@ pub fn spawn_player_system(
     ));
 }
 
-pub fn spawn_ship_system(
+pub fn spawn_ships_system(
     mut commands: Commands,
-    window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
+    level_data: Res<LevelScript>,
+    q_window: Query<&Window, With<PrimaryWindow>>,
 ) {
-    let window: &Window = window_query.get_single().unwrap();
-    for _ in 0..2 {
-        commands.spawn((
-            SpriteBundle {
-                transform: Transform::from_xyz(
-                    random::<f32>() * window.width(),
-                    random::<f32>() * window.height(),
-                    0.0,
-                )
-                .with_scale(GLOBAL_RESCALE_V),
-                texture: asset_server.load("sprites/ships/lunker.png"),
-                ..default()
-            },
-            load_minelayer_ship(),
-            Velocity {
-                velocity: Vec3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 0.0,
-                },
-            },
-        ));
-    }
-}
+    let mut rng = thread_rng();
+    let window = q_window.get_single().unwrap();
+    level_data.txt.as_str().trim().lines().for_each(|line| {
+        // Read the data in the line to determine what ship to spawn and where.
+        let level_vec = line.split(',').collect::<Vec<&str>>();
+        let ship_type = level_vec[0];
+        let mut x = level_vec[1].parse::<f32>().unwrap();
+        let mut y = level_vec[2].parse::<f32>().unwrap();
 
-pub fn spawn_drone_system(
-    mut commands: Commands,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    asset_server: Res<AssetServer>,
-) {
-    let window: &Window = window_query.get_single().unwrap();
-    for _ in 0..2 {
-        commands.spawn((
-            SpriteBundle {
-                transform: Transform::from_xyz(
-                    random::<f32>() * window.width(),
-                    random::<f32>() * window.height(),
-                    0.0,
-                )
-                .with_scale(GLOBAL_RESCALE_V),
-                texture: asset_server.load("sprites/ships/drone.png"),
-                ..default()
-            },
-            load_drone_ship(),
-            Velocity {
-                velocity: Vec3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 0.0,
-                },
-            },
-        ));
-    }
+        // -1.0 of x or y signifies that we want to randomize the coordinates.
+        if x == -1.0 {
+            x = rng.gen::<f32>() * window.width()
+        }
+        if y == -1.0 {
+            y = rng.gen::<f32>() * window.height()
+        }
+
+        let ship_sprite_path = match ship_type {
+            "picket" => "sprites/ships/picket.png".to_string(),
+            "drone" => "sprites/ships/drone.png".to_string(),
+            _ => "sprites/ships/turret.png".to_string(),
+        };
+
+        match ship_type {
+            "picket" => {
+                commands.spawn((
+                    SpriteBundle {
+                        transform: Transform::from_xyz(x, y, 0.0).with_scale(GLOBAL_RESCALE_V),
+                        texture: asset_server.load(ship_sprite_path),
+                        ..default()
+                    },
+                    Velocity {
+                        velocity: Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                        },
+                    },
+                    load_picket_ship(),
+                ));
+            }
+            "drone" => {
+                commands.spawn((
+                    SpriteBundle {
+                        transform: Transform::from_xyz(x, y, 0.0).with_scale(GLOBAL_RESCALE_V),
+                        texture: asset_server.load(ship_sprite_path),
+                        ..default()
+                    },
+                    Velocity {
+                        velocity: Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                        },
+                    },
+                    load_drone_ship(),
+                ));
+            }
+            "speedy" => {
+                commands.spawn((
+                    SpriteBundle {
+                        transform: Transform::from_xyz(x, y, 0.0).with_scale(GLOBAL_RESCALE_V),
+                        texture: asset_server.load(ship_sprite_path),
+                        ..default()
+                    },
+                    Velocity {
+                        velocity: Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                        },
+                    },
+                    load_speedy_ship(),
+                ));
+            }
+            "lunker" => {
+                commands.spawn((
+                    SpriteBundle {
+                        transform: Transform::from_xyz(x, y, 0.0).with_scale(GLOBAL_RESCALE_V),
+                        texture: asset_server.load(ship_sprite_path),
+                        ..default()
+                    },
+                    Velocity {
+                        velocity: Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                        },
+                    },
+                    load_lunker_ship(),
+                ));
+            }
+            "mine_layer" => {
+                commands.spawn((
+                    SpriteBundle {
+                        transform: Transform::from_xyz(x, y, 0.0).with_scale(GLOBAL_RESCALE_V),
+                        texture: asset_server.load(ship_sprite_path),
+                        ..default()
+                    },
+                    Velocity {
+                        velocity: Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                        },
+                    },
+                    load_minelayer_ship(),
+                ));
+            }
+            "rammer" => {
+                commands.spawn((
+                    SpriteBundle {
+                        transform: Transform::from_xyz(x, y, 0.0).with_scale(GLOBAL_RESCALE_V),
+                        texture: asset_server.load(ship_sprite_path),
+                        ..default()
+                    },
+                    Velocity {
+                        velocity: Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                        },
+                    },
+                    load_rammer_ship(),
+                ));
+            }
+            "turret" => {
+                commands.spawn((
+                    SpriteBundle {
+                        transform: Transform::from_xyz(x, y, 0.0).with_scale(GLOBAL_RESCALE_V),
+                        texture: asset_server.load(ship_sprite_path),
+                        ..default()
+                    },
+                    Velocity {
+                        velocity: Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                        },
+                    },
+                    load_turret_ship(),
+                ));
+            }
+            _ => {
+                println!("ship_type not recognized!")
+            }
+        }
+    });
 }
 
 pub fn spawn_asteroid_system(

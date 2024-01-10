@@ -230,6 +230,11 @@ pub struct ExplosionSound {
 }
 // Structs and Enums that are NOT Components
 
+#[derive(Resource)]
+pub struct LevelScript {
+    pub txt: String,
+}
+
 pub enum Shape {
     Circle,
     Square,

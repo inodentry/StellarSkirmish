@@ -2,45 +2,6 @@ use crate::components::*;
 use crate::ship_parts::*;
 use bevy::prelude::{Timer, TimerMode};
 
-pub fn load_drone_ship() -> (
-    Ship,
-    Enemy,
-    Thruster,
-    Clipping,
-    Drag,
-    CollisionBox,
-    Health,
-    Mass,
-    EntityType,
-    DroneAI,
-) {
-    (
-        Ship {
-            turn_speed: f32::to_radians(1.0),
-            primary_weapon: load_drone_laser(),
-            secondary_weapon: load_blank_weapon(),
-            tertiary_weapon: load_blank_weapon(),
-        },
-        Enemy {},
-        load_drone_thruster(),
-        Clipping {
-            cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
-        },
-        Drag {
-            dampening_factor: 0.995,
-        },
-        CollisionBox {
-            shape: Shape::Circle,
-            width_radius: 38.0 * GLOBAL_RESCALE_C,
-            height: 38.0 * GLOBAL_RESCALE_C,
-        },
-        Health { value: 100.0 },
-        Mass { value: 1000.0 },
-        EntityType::Ship,
-        DroneAI {},
-    )
-}
-
 pub fn load_speedy_ship() -> (
     Ship,
     Enemy,
@@ -88,6 +49,45 @@ pub fn load_speedy_ship() -> (
     )
 }
 
+pub fn load_drone_ship() -> (
+    Ship,
+    Enemy,
+    Thruster,
+    Clipping,
+    Drag,
+    CollisionBox,
+    Health,
+    Mass,
+    EntityType,
+    DroneAI,
+) {
+    (
+        Ship {
+            turn_speed: f32::to_radians(1.0),
+            primary_weapon: load_drone_laser(),
+            secondary_weapon: load_blank_weapon(),
+            tertiary_weapon: load_blank_weapon(),
+        },
+        Enemy {},
+        load_drone_thruster(),
+        Clipping {
+            cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
+        },
+        Drag {
+            dampening_factor: 0.995,
+        },
+        CollisionBox {
+            shape: Shape::Circle,
+            width_radius: 38.0 * GLOBAL_RESCALE_C,
+            height: 38.0 * GLOBAL_RESCALE_C,
+        },
+        Health { value: 100.0 },
+        Mass { value: 1000.0 },
+        EntityType::Ship,
+        DroneAI {},
+    )
+}
+
 pub fn load_rammer_ship() -> (
     Ship,
     Enemy,
@@ -132,49 +132,6 @@ pub fn load_rammer_ship() -> (
             cd_timer: Timer::from_seconds(3.0, TimerMode::Once),
         },
         RammerAI {},
-    )
-}
-
-pub fn load_picket_ship() -> (
-    Ship,
-    Enemy,
-    Thruster,
-    Clipping,
-    Drag,
-    CollisionBox,
-    Health,
-    Mass,
-    EntityType,
-    AITimer,
-    PicketAI,
-) {
-    (
-        Ship {
-            turn_speed: f32::to_radians(2.0),
-            primary_weapon: load_practice_laser(),
-            secondary_weapon: load_blank_weapon(),
-            tertiary_weapon: load_blank_weapon(),
-        },
-        Enemy {},
-        load_basic_thruster(),
-        Clipping {
-            cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
-        },
-        Drag {
-            dampening_factor: 0.995,
-        },
-        CollisionBox {
-            shape: Shape::Circle,
-            width_radius: 38.0 * GLOBAL_RESCALE_C,
-            height: 38.0 * GLOBAL_RESCALE_C,
-        },
-        Health { value: 100.0 },
-        Mass { value: 80000.0 },
-        EntityType::Ship,
-        AITimer {
-            cd_timer: Timer::from_seconds(3.5, TimerMode::Once),
-        },
-        PicketAI {},
     )
 }
 
@@ -268,7 +225,7 @@ pub fn load_minelayer_ship() -> (
     )
 }
 
-pub fn load_practice_ship() -> (
+pub fn load_turret_ship() -> (
     Ship,
     Enemy,
     Thruster,
@@ -278,6 +235,7 @@ pub fn load_practice_ship() -> (
     Health,
     Mass,
     EntityType,
+    TurretAI,
 ) {
     (
         Ship {
@@ -299,8 +257,52 @@ pub fn load_practice_ship() -> (
             width_radius: 38.0 * GLOBAL_RESCALE_C,
             height: 38.0 * GLOBAL_RESCALE_C,
         },
-        Health { value: 10.0 },
+        Health { value: 50.0 },
         Mass { value: 100000.0 },
         EntityType::Ship,
+        TurretAI {},
+    )
+}
+
+pub fn load_picket_ship() -> (
+    Ship,
+    Enemy,
+    Thruster,
+    Clipping,
+    Drag,
+    CollisionBox,
+    Health,
+    Mass,
+    EntityType,
+    AITimer,
+    PicketAI,
+) {
+    (
+        Ship {
+            turn_speed: f32::to_radians(2.0),
+            primary_weapon: load_practice_laser(),
+            secondary_weapon: load_blank_weapon(),
+            tertiary_weapon: load_blank_weapon(),
+        },
+        Enemy {},
+        load_basic_thruster(),
+        Clipping {
+            cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
+        },
+        Drag {
+            dampening_factor: 0.995,
+        },
+        CollisionBox {
+            shape: Shape::Circle,
+            width_radius: 38.0 * GLOBAL_RESCALE_C,
+            height: 38.0 * GLOBAL_RESCALE_C,
+        },
+        Health { value: 100.0 },
+        Mass { value: 80000.0 },
+        EntityType::Ship,
+        AITimer {
+            cd_timer: Timer::from_seconds(3.5, TimerMode::Once),
+        },
+        PicketAI {},
     )
 }
