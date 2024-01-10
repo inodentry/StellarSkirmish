@@ -34,7 +34,12 @@ fn main() {
             coords: Vec2::default(),
         })
         .insert_resource(LevelScript {
-            txt: fs::read_to_string("assets/levels/level_script.txt").unwrap(),
+            txt: fs::read_to_string("assets/levels/level_script.txt")
+                .expect("Expected to find level_script.txt in assets/levels/"),
+        })
+        .insert_resource(CurrentScriptLine { line_num: 0 })
+        .insert_resource(ScriptTimer {
+            delay: Timer::from_seconds(0.0, TimerMode::Once),
         })
         // Startup Systems
         .add_systems(
@@ -43,7 +48,6 @@ fn main() {
                 spawn_camera_system,
                 setup_background_stars_system.after(spawn_camera_system),
                 spawn_player_system.after(spawn_camera_system),
-                spawn_ships_system.after(spawn_camera_system),
                 //spawn_asteroid_system.after(spawn_camera_system),
             ),
         )
@@ -57,6 +61,7 @@ fn main() {
         .add_systems(
             Update,
             (
+                read_script_system,
                 mouse_world_coords_system,
                 player_weapons_system,
                 wrap_clipping_location_system,
@@ -96,6 +101,7 @@ fn tick_timers(
     mut ship_query: Query<&mut Ship>,
     mut clipping_query: Query<&mut Clipping>,
     mut self_destruct_query: Query<&mut SelfDestruct>,
+    mut script_timer: ResMut<ScriptTimer>,
     time: Res<Time>,
 ) {
     for mut ship in ship_query.iter_mut() {
@@ -109,4 +115,5 @@ fn tick_timers(
     for mut self_destruct in self_destruct_query.iter_mut() {
         self_destruct.cd_timer.tick(time.delta());
     }
+    script_timer.delay.tick(time.delta());
 }

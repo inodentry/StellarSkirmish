@@ -235,6 +235,17 @@ pub struct LevelScript {
     pub txt: String,
 }
 
+#[derive(Resource)]
+pub struct CurrentScriptLine {
+    pub line_num: usize,
+}
+
+// This timer resource is used to cause delays in proceeding with the game script.
+#[derive(Resource)]
+pub struct ScriptTimer {
+    pub delay: Timer,
+}
+
 pub enum Shape {
     Circle,
     Square,

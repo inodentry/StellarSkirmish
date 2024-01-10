@@ -2,6 +2,7 @@ turret,75.0,75.0
 turret,1525.0,75.0,
 turret,75.0,925.0
 turret,1525.0,925.0
+delay,5.0
 drone,-1.0,-1.0
 drone,-1.0,-1.0
 picket,-1.0,-1.0
