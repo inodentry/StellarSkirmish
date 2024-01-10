@@ -285,7 +285,7 @@ pub fn load_picket_ship() -> (
             tertiary_weapon: load_blank_weapon(),
         },
         Enemy {},
-        load_basic_thruster(),
+        load_picket_thruster(),
         Clipping {
             cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
         },

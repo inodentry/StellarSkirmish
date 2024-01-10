@@ -163,6 +163,14 @@ pub fn load_basic_thruster() -> Thruster {
     }
 }
 
+pub fn load_picket_thruster() -> Thruster {
+    Thruster {
+        name: "Basic Thruster".to_string(),
+        value: 10.0,
+        force: 70000.0,
+    }
+}
+
 pub fn load_drone_thruster() -> Thruster {
     Thruster {
         name: "Drone Thruster".to_string(),
