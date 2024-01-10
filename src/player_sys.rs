@@ -74,11 +74,6 @@ pub fn player_weapons_system(
                 ship.primary_weapon
                     .fire(transform.up(), vel.velocity.length()),
             ));
-            println!(
-                "Projectile velocity: {:?}",
-                transform.up() * (ship.primary_weapon.proj_speed + vel.velocity.length())
-            );
-            println!("Ship velocity: {:?}", vel.velocity);
         }
         // Fire Secondary Weapon
         if mouse_input.pressed(MouseButton::Left) && ship.secondary_weapon.cd_timer.finished() {

@@ -1,5 +1,5 @@
 use crate::components::*;
-use crate::events::SpawnGuidedMissileEvent;
+use crate::events::{SpawnGuidedMissileEvent, SpawnMineEvent};
 use crate::ship_parts::*;
 use crate::ships::*;
 use bevy::prelude::*;
@@ -69,7 +69,7 @@ pub fn spawn_ship_system(
                 texture: asset_server.load("sprites/ships/lunker.png"),
                 ..default()
             },
-            load_lunker_ship(),
+            load_minelayer_ship(),
             Velocity {
                 velocity: Vec3 {
                     x: 0.0,
@@ -164,7 +164,6 @@ pub fn despawn_dead_system(
         // If an entity's health has dropped to or below 0, despawn it.
         if health.value <= 0.0 {
             if *et == EntityType::Ship || *et == EntityType::Missile {
-                println!("Destruction sound!");
                 commands.spawn(AudioBundle {
                     source: asset_server.load("sounds/explosionCrunch_003.ogg"),
                     ..default()
@@ -215,7 +214,6 @@ pub fn spawn_missile_system(
     mut spawn_reader: EventReader<SpawnGuidedMissileEvent>,
 ) {
     for ev in spawn_reader.read() {
-        println!("Missile event received!");
         commands.spawn((
             SpriteBundle {
                 transform: ev.transform,
@@ -246,6 +244,47 @@ pub fn spawn_missile_system(
             Missile {
                 turn_speed: 0.10,
                 fuel: 800.0,
+            },
+            EntityType::Missile,
+        ));
+    }
+}
+
+pub fn spawn_mine_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut spawn_reader: EventReader<SpawnMineEvent>,
+) {
+    for ev in spawn_reader.read() {
+        commands.spawn((
+            SpriteBundle {
+                transform: ev.transform.with_scale(GLOBAL_RESCALE_V * 0.75),
+                texture: asset_server.load("sprites/projectiles/mine.png"),
+                ..default()
+            },
+            Clipping {
+                cd_timer: Timer::from_seconds(0.0, TimerMode::Once),
+            },
+            CollisionBox {
+                shape: Shape::Circle,
+                width_radius: 20.0 * GLOBAL_RESCALE_C,
+                height: 20.0 * GLOBAL_RESCALE_C,
+            },
+            Health { value: 10.0 },
+            Mass { value: 100.0 },
+            Drag {
+                dampening_factor: 0.995,
+            },
+            Velocity {
+                velocity: Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+            },
+            Missile {
+                turn_speed: 0.0,
+                fuel: 0.0,
             },
             EntityType::Missile,
         ));

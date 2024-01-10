@@ -15,7 +15,7 @@ pub fn load_basic_torpedo() -> WeaponSystem {
         proj_speed: 300.0, // m/s
         proj_fuel: 300.0,
         proj_type: ProjectileType::Torpedo,
-        proj_mass: 5.0, // kg
+        proj_mass: 2.2, // kg
         dmg_type: DamageType::Kinetic,
         dmg: 0.0,
         sprite_path: "sprites/projectiles/spaceMissiles_001.png".to_string(),
@@ -53,7 +53,7 @@ pub fn load_basic_laser() -> WeaponSystem {
         proj_type: ProjectileType::Laser,
         proj_mass: 0.0,
         dmg_type: DamageType::Radiant,
-        dmg: 5.0,
+        dmg: 50.0,
         sprite_path: "sprites/projectiles/laserBlue04.png".to_string(),
         on_spawn_sprite_path: "".to_string(),
         sound_path: "sounds/laserSmall_002.ogg".to_string(),
@@ -143,12 +143,12 @@ pub fn load_drone_laser() -> WeaponSystem {
         proj_type: ProjectileType::Laser,
         proj_mass: 0.0,
         dmg_type: DamageType::Radiant,
-        dmg: 5.0,
+        dmg: 1.0,
         sprite_path: "sprites/projectiles/drone_laser.png".to_string(),
         on_spawn_sprite_path: "".to_string(),
         sound_path: "".to_string(),
         cooldown: 1.0,
-        cd_timer: Timer::from_seconds(1.0, TimerMode::Once),
+        cd_timer: Timer::from_seconds(0.75, TimerMode::Once),
     }
 }
 

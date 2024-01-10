@@ -72,7 +72,6 @@ pub struct WeaponSystem {
 }
 impl Weapon<(Projectile, Phase, Velocity)> for WeaponSystem {
     fn fire(&mut self, vel_dir: Vec3, origin_speed: f32) -> (Projectile, Phase, Velocity) {
-        println!("vel_dir: {:?} | origin speed: {}", vel_dir, origin_speed);
         self.cd_timer.reset();
         (
             Projectile {

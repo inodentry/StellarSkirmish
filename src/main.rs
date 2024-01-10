@@ -49,6 +49,7 @@ fn main() {
         .add_event::<CollisionEvent>()
         .add_event::<SpawnGuidedMissileEvent>()
         .add_event::<MissileDetonationEvent>()
+        .add_event::<SpawnMineEvent>()
         // Update Systems
         .add_systems(
             Update,
@@ -63,8 +64,10 @@ fn main() {
                 drone_ai_system,
                 rammer_ai_system,
                 picket_ai_system,
+                minelayer_ai_system,
                 handle_self_destruct_system,
                 spawn_missile_system,
+                spawn_mine_system,
                 guided_missile_ai_system,
             ),
         )

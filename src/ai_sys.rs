@@ -1,5 +1,5 @@
 use crate::components::*;
-use crate::events::SpawnGuidedMissileEvent;
+use crate::events::{SpawnGuidedMissileEvent, SpawnMineEvent};
 use crate::traits::*;
 use bevy::prelude::*;
 use libm::atan2f;
@@ -396,7 +396,6 @@ pub fn picket_ai_system(
                 turn_toward(&mut enemy_transform, enemy_ship.turn_speed, angle_between);
 
                 if enemy_ship.primary_weapon.cd_timer.finished() {
-                    println!("Attempting to fire missile...");
                     let mut projectile_transform = Transform::from_xyz(
                         enemy_transform.translation.x,
                         enemy_transform.translation.y,
@@ -408,7 +407,6 @@ pub fn picket_ai_system(
                         enemy_transform.up() * 75.0 * GLOBAL_RESCALE_V;
                     // Ensure that it is rotated in a way that aligns with the firing ship.
                     projectile_transform.rotation = enemy_transform.rotation.clone();
-                    println!("Writing event to fire missile...");
                     missile_writer.send(SpawnGuidedMissileEvent {
                         transform: projectile_transform,
                     });
@@ -417,6 +415,51 @@ pub fn picket_ai_system(
                 turn_toward(&mut enemy_transform, enemy_ship.turn_speed, angle_between);
                 ai_timer.cd_timer.tick(time.delta());
             }
+        }
+    }
+}
+
+pub fn minelayer_ai_system(
+    mut q_enemy: Query<
+        (
+            &mut Transform,
+            &mut Velocity,
+            &mut AITimer,
+            &Mass,
+            &Thruster,
+        ),
+        (With<Enemy>, With<MineLayerAI>, Without<Player>),
+    >,
+    time: Res<Time>,
+    mut mine_writer: EventWriter<SpawnMineEvent>,
+) {
+    // The intended behavior of the "mine layer" enemy is to slowly cruise across the screen in straight lines while
+    // deploying lines of mines.
+
+    for (mut enemy_transform, mut vel, mut ai_timer, mass, thruster) in q_enemy.iter_mut() {
+        // Move in a straight line
+        let acceleration = enemy_transform.up() * thruster.force / mass.value;
+        vel.velocity += acceleration * time.delta_seconds();
+        if vel.velocity.length() > 50.0 {
+            vel.velocity = vel.velocity.clamp_length_max(50.0)
+        }
+        if ai_timer.cd_timer.finished() {
+            ai_timer.cd_timer.reset();
+            let mut projectile_transform = Transform::from_xyz(
+                enemy_transform.translation.x,
+                enemy_transform.translation.y,
+                0.0,
+            )
+            .with_scale(GLOBAL_RESCALE_V);
+
+            //Ensure the mine is dropped behind the ship so it doesn't immediately collide!
+            projectile_transform.translation += enemy_transform.down() * 75.0 * GLOBAL_RESCALE_V;
+
+            mine_writer.send(SpawnMineEvent {
+                transform: projectile_transform,
+            });
+        } else {
+            ai_timer.cd_timer.tick(time.delta());
         }
     }
 }

@@ -22,6 +22,11 @@ pub struct SpawnGuidedMissileEvent {
     pub transform: Transform,
 }
 
+#[derive(Event)]
+pub struct SpawnMineEvent {
+    pub transform: Transform,
+}
+
 // Missile detonation events record the missile entity that detonated.
 // The event handling system will despawn the missile and spawn an explosion at its location.
 #[derive(Event)]

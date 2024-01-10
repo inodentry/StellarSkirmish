@@ -147,11 +147,9 @@ pub fn collision_calculation_system(
                     // We add a tiny value to max_speed so that stationary overlapping objects can
                     // still be gently "de-tangled."
                     if updated_thing1_v.length() > max_speed {
-                        println!("{}", "Fixed max speed".to_string());
                         updated_thing1_v = updated_thing1_v.normalize() * (max_speed + 0.001);
                     }
                     if updated_thing2_v.length() > max_speed {
-                        println!("{}", "Fixed max speed".to_string());
                         updated_thing2_v = updated_thing2_v.normalize() * (max_speed + 0.001);
                     }
 
@@ -170,12 +168,6 @@ pub fn collision_calculation_system(
 
                     // Calculate how much kinetic energy must have been absorbed in the collision.
                     let ke_absorbed = initial_ke - final_ke;
-
-                    println!(
-                        "KE of collision: {} | Total DMG: {}",
-                        ke_absorbed,
-                        ke_absorbed * KE_TO_DMG
-                    );
 
                     // We don't want to bother dinging objects will little damage for every trivial bump.
                     // However, if non-trivial kinetic energy is absorbed, this causes damage.
@@ -207,6 +199,7 @@ pub fn collision_resolution_system(
     mut object_query: Query<(&mut Velocity, &mut Clipping), With<Clipping>>,
     mut collision_reader: EventReader<CollisionEvent>,
 ) {
+    // CollisionEvent would be more flexible if it held change in velocity or force rather than new velocity.
     for ev in collision_reader.read() {
         if let Ok((mut vel, mut clipping)) = object_query.get_mut(ev.entity) {
             vel.velocity = ev.new_velocity;
@@ -276,6 +269,7 @@ pub fn inflict_damage_system(
     for ev in damage_reader.read() {
         if let Ok(mut target_health) = health_query.get_mut(ev.target) {
             let total_damage = ev.damage_value;
+            println! {"Handled {} dmg.", {total_damage}};
             target_health.value -= total_damage;
         }
     }
@@ -285,7 +279,7 @@ pub fn inflict_damage_system(
 /// When a missile hits any entity that has clipping, it detonates.
 pub fn check_missile_collisions_system(
     q_missile: Query<(Entity, &CollisionBox, &Transform), With<Missile>>,
-    q_clipping: Query<(&CollisionBox, &Transform), Without<Missile>>,
+    q_clipping: Query<(&CollisionBox, &Transform), (Without<Missile>, Without<MineLayerAI>)>,
     mut detonation_event_writer: EventWriter<MissileDetonationEvent>,
 ) {
     for (missile_entity, missile_box, missile_transform) in q_missile.iter() {
@@ -309,11 +303,13 @@ pub fn check_missile_collisions_system(
 pub fn handle_denotation_event_system(
     mut commands: Commands,
     mut q_missile: Query<&Transform, With<Missile>>,
+    q_clip: Query<(Entity, &Transform, &CollisionBox), (With<Clipping>, Without<Missile>)>,
     mut detonation_reader: EventReader<MissileDetonationEvent>,
+    mut damage_writer: EventWriter<DamageEvent>,
     asset_server: Res<AssetServer>,
 ) {
     for ev in detonation_reader.read() {
-        if let Ok((transform)) = q_missile.get(ev.entity) {
+        if let Ok((missile_transform)) = q_missile.get(ev.entity) {
             commands.spawn((
                 AudioBundle {
                     source: asset_server.load("sounds/explosionCrunch_003.ogg"),
@@ -325,7 +321,7 @@ pub fn handle_denotation_event_system(
             ));
             commands.spawn((
                 SpriteBundle {
-                    transform: transform.clone(),
+                    transform: missile_transform.clone(),
                     texture: asset_server.load("sprites/effects/explosion_tmp.png"),
                     ..default()
                 },
@@ -333,6 +329,22 @@ pub fn handle_denotation_event_system(
                     cd_timer: Timer::from_seconds(0.25, TimerMode::Once),
                 },
             ));
+            for (entity, clip_transform, clip_box) in q_clip.iter() {
+                let distance = clip_transform
+                    .translation
+                    .distance(missile_transform.translation);
+                let n_radius = clip_box.width_radius;
+                // Replace this with an actual collision box later!
+                let explosion_radius = 200.0;
+                if distance < n_radius + explosion_radius {
+                    // The missile collided with something, register the detonation event.
+                    damage_writer.send(DamageEvent {
+                        target: entity,
+                        damage_type: DamageType::Kinetic,
+                        damage_value: 50.0,
+                    });
+                }
+            }
             commands.entity(ev.entity).despawn();
         }
     }
