@@ -7,7 +7,7 @@ pub fn spawn_camera_system(
     mut commands: Commands,
     mut window_query: Query<&mut Window, With<PrimaryWindow>>,
 ) {
-    // Also setting the resolution to 1200x900 here so we have more screen to work.
+    // Also setting the resolution to 1600x1000 here so we have more screen to work.
     // Window resizing will probably get moved later on.
     let mut window = window_query.get_single_mut().unwrap();
     window.resolution.set(1600.0, 1000.0);
@@ -60,10 +60,10 @@ pub fn confine_player_movement_system(
 }
 
 pub fn wrap_clipping_location_system(
-    mut nophase_query: Query<&mut Transform, With<Clipping>>,
+    mut clipping_query: Query<&mut Transform, With<Clipping>>,
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
-    for mut transform in nophase_query.iter_mut() {
+    for mut transform in clipping_query.iter_mut() {
         let window = window_query.get_single().unwrap();
 
         let x_min = 0.0;
@@ -113,5 +113,11 @@ pub fn mouse_world_coords_system(
         .map(|ray| ray.origin.truncate())
     {
         coords.coords = world_position;
+    }
+}
+
+pub fn move_stars_system(mut q_stars: Query<&mut Transform, With<Star>>) {
+    for mut star_transform in q_stars.iter_mut() {
+        star_transform.translation.y -= 0.3
     }
 }

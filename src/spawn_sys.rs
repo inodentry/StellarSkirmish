@@ -317,19 +317,20 @@ pub fn setup_background_stars_system(
 ) {
     let win = window_query.get_single().unwrap();
     let mut rng = thread_rng();
-    for _ in 0..30 {
-        commands.spawn(
-            (SpriteBundle {
+    for _ in 0..600 {
+        commands.spawn((
+            SpriteBundle {
                 transform: Transform::from_xyz(
                     rng.gen::<f32>() * win.width(),
-                    rng.gen::<f32>() * win.height(),
+                    rng.gen::<f32>() * win.height() * 20.0,
                     -1.0,
                 )
                 .with_scale(GLOBAL_RESCALE_V),
                 texture: asset_server.load("sprites/effects/star2.png"),
                 ..default()
-            }),
-        );
+            },
+            Star {},
+        ));
     }
 }
 

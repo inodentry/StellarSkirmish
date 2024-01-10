@@ -62,6 +62,7 @@ fn main() {
             Update,
             (
                 read_script_system,
+                move_stars_system,
                 mouse_world_coords_system,
                 player_weapons_system,
                 wrap_clipping_location_system,
