@@ -306,3 +306,48 @@ pub fn load_picket_ship() -> (
         PicketAI {},
     )
 }
+
+pub fn load_boss_ship() -> (
+    Ship,
+    Enemy,
+    Clipping,
+    Drag,
+    CollisionBox,
+    Health,
+    Mass,
+    EntityType,
+    AITimer,
+    AITimer2,
+    BossAI,
+) {
+    (
+        Ship {
+            turn_speed: f32::to_radians(1.25),
+            primary_weapon: load_basic_torpedo(),
+            secondary_weapon: load_blank_weapon(),
+            tertiary_weapon: load_blank_weapon(),
+        },
+        Enemy {},
+        Clipping {
+            cd_timer: Timer::from_seconds(1.0, TimerMode::Once),
+        },
+        Drag {
+            dampening_factor: 1.0,
+        },
+        CollisionBox {
+            shape: Shape::Circle,
+            width_radius: 450.0 * GLOBAL_RESCALE_C,
+            height: 450.0 * GLOBAL_RESCALE_C,
+        },
+        Health { value: 5000.0 },
+        Mass { value: 100000000.0 },
+        EntityType::Ship,
+        AITimer {
+            cd_timer: Timer::from_seconds(1.0, TimerMode::Once),
+        },
+        AITimer2 {
+            cd_timer: Timer::from_seconds(3.0, TimerMode::Once),
+        },
+        BossAI {},
+    )
+}

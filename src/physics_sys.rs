@@ -279,7 +279,10 @@ pub fn inflict_damage_system(
 /// When a missile hits any entity that has clipping, it detonates.
 pub fn check_missile_collisions_system(
     q_missile: Query<(Entity, &CollisionBox, &Transform), With<Missile>>,
-    q_clipping: Query<(&CollisionBox, &Transform), (Without<Missile>, Without<MineLayerAI>)>,
+    q_clipping: Query<
+        (&CollisionBox, &Transform),
+        (Without<Missile>, Without<MineLayerAI>, Without<BossAI>),
+    >,
     mut detonation_event_writer: EventWriter<MissileDetonationEvent>,
 ) {
     for (missile_entity, missile_box, missile_transform) in q_missile.iter() {

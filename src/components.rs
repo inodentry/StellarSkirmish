@@ -219,6 +219,9 @@ pub struct SpeedyAI {}
 #[derive(Component)]
 pub struct TurretAI {}
 
+#[derive(Component)]
+pub struct BossAI {}
+
 // ---------------
 // -- Resources --
 // ---------------

@@ -5,6 +5,7 @@ use crate::ships::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use rand::prelude::*;
+use std::f32::consts::PI;
 
 pub fn spawn_player_system(
     mut commands: Commands,
@@ -102,6 +103,7 @@ pub fn read_script_system(
                     "mine_layer" => "sprites/ships/mine_layer.png".to_string(),
                     "rammer" => "sprites/ships/rammer.png".to_string(),
                     "turret" => "sprites/ships/turret.png".to_string(),
+                    "boss" => "sprites/ships/boss.png".to_string(),
                     _ => "sprites/ships/turret.png".to_string(),
                 };
 
@@ -233,6 +235,25 @@ pub fn read_script_system(
                             load_turret_ship(),
                         ));
                     }
+                    "boss" => {
+                        commands.spawn((
+                            SpriteBundle {
+                                transform: Transform::from_xyz(x, y, 0.0)
+                                    .with_scale(GLOBAL_RESCALE_V * 4.0)
+                                    .with_rotation(Quat::from_rotation_z(-3.0 * PI / 4.0)),
+                                texture: asset_server.load(ship_sprite_path),
+                                ..default()
+                            },
+                            Velocity {
+                                velocity: Vec3 {
+                                    x: 0.0,
+                                    y: 0.0,
+                                    z: 0.0,
+                                },
+                            },
+                            load_boss_ship(),
+                        ));
+                    }
                     _ => {
                         println!("ship_type not recognized!")
                     }
@@ -249,10 +270,10 @@ pub fn spawn_asteroid_system(
 ) {
     let window = window_query.get_single().unwrap();
     let mut rng = thread_rng();
-    for _ in 0..30 {
+    for _ in 0..10 {
         let random_x = rng.gen::<f32>() * window.width();
         let random_y = rng.gen::<f32>() * window.height();
-        let asteroid_rescaler = rng.gen::<f32>() * 2.0;
+        let asteroid_rescaler = rng.gen::<f32>();
 
         commands.spawn((
             SpriteBundle {
@@ -334,7 +355,7 @@ pub fn setup_background_stars_system(
                 transform: Transform::from_xyz(
                     rng.gen::<f32>() * win.width(),
                     rng.gen::<f32>() * win.height() * 20.0,
-                    -1.0,
+                    -3.0,
                 )
                 .with_scale(GLOBAL_RESCALE_V),
                 texture: asset_server.load("sprites/effects/star2.png"),

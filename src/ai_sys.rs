@@ -1,5 +1,6 @@
 use crate::components::*;
 use crate::events::{SpawnGuidedMissileEvent, SpawnMineEvent};
+use crate::ships::load_rammer_ship;
 use crate::traits::*;
 use bevy::prelude::*;
 use libm::atan2f;
@@ -498,6 +499,97 @@ pub fn guided_missile_ai_system(
             vel.velocity += acceleration * time.delta_seconds();
             if vel.velocity.length() > (MAX_SPEED - 100.0) {
                 vel.velocity = vel.velocity.clamp_length_max(MAX_SPEED - 100.0)
+            }
+        }
+    }
+}
+
+pub fn boss_ai_system(
+    mut commands: Commands,
+    mut q_enemy: Query<
+        (&mut Transform, &mut AITimer, &mut AITimer2),
+        (With<Enemy>, With<BossAI>, Without<Player>),
+    >,
+    q_player: Query<(&Transform), (With<Player>, Without<Enemy>)>,
+    mut missile_writer: EventWriter<SpawnGuidedMissileEvent>,
+    asset_server: Res<AssetServer>,
+    time: Res<Time>,
+) {
+    // The intended behavior of the "speedy" enemy is to fly into mid-range of the player.
+    // Once mid-range, alternatively fire on the player and fly away to change position.
+    // Can be viewed as a FSM.
+    // State 1: Wait.
+    // State 2: Launch a volley of guided missiles.
+    // State 3: Launch a volley of drones.
+    // State 4: Spray Lasers in a sinusoidal pattern
+    // Randomly enter a state whenever ai_timer is finished.
+
+    for (mut enemy_transform, mut ai_timer, mut ai_timer2) in q_enemy.iter_mut() {
+        // Force the boss's position to remain constant. This is easier than refactoring physics to accommodate this.
+        enemy_transform.translation = Vec3 {
+            x: 100.0,
+            y: 950.0,
+            z: 0.0,
+        };
+
+        if let Ok(_) = q_player.get_single() {
+            if ai_timer.cd_timer.finished() {
+                ai_timer.cd_timer.reset();
+                let mut projectile_transform = Transform::from_xyz(
+                    enemy_transform.translation.x,
+                    enemy_transform.translation.y,
+                    0.0,
+                )
+                .with_scale(GLOBAL_RESCALE_V);
+
+                // Modify it a little so that it originates from just in front of the firing ship.
+                projectile_transform.translation += enemy_transform.up() * 50.0 * GLOBAL_RESCALE_V
+                    + Vec3 {
+                        x: 160.0,
+                        y: -50.0,
+                        z: 0.0,
+                    };
+                // Ensure that it is rotated in a way that aligns with the firing ship.
+                projectile_transform.rotation = enemy_transform.rotation.clone();
+                missile_writer.send(SpawnGuidedMissileEvent {
+                    transform: projectile_transform,
+                });
+                // Modify it a little so that it originates from just in front of the firing ship.
+                projectile_transform.translation += enemy_transform.up() * 50.0 * GLOBAL_RESCALE_V
+                    + Vec3 {
+                        x: -130.0,
+                        y: -90.0,
+                        z: 0.0,
+                    };
+                // Ensure that it is rotated in a way that aligns with the firing ship.
+                projectile_transform.rotation = enemy_transform.rotation.clone();
+                missile_writer.send(SpawnGuidedMissileEvent {
+                    transform: projectile_transform,
+                });
+            } else {
+                ai_timer.cd_timer.tick(time.delta());
+            }
+            if ai_timer2.cd_timer.finished() {
+                ai_timer2.cd_timer.reset();
+                commands.spawn((
+                    SpriteBundle {
+                        transform: Transform::from_xyz(1500.0, 50.0, 0.0)
+                            .with_scale(GLOBAL_RESCALE_V)
+                            .with_rotation(Quat::from_rotation_z(PI / 4.0)),
+                        texture: asset_server.load("sprites/ships/rammer.png"),
+                        ..default()
+                    },
+                    Velocity {
+                        velocity: Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                        },
+                    },
+                    load_rammer_ship(),
+                ));
+            } else {
+                ai_timer2.cd_timer.tick(time.delta());
             }
         }
     }

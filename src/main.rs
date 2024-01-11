@@ -78,6 +78,7 @@ fn main() {
                 spawn_missile_system,
                 spawn_mine_system,
                 guided_missile_ai_system,
+                boss_ai_system,
             ),
         )
         .add_systems(
