@@ -82,10 +82,15 @@ pub fn player_weapons_system(
                     .with_scale(GLOBAL_RESCALE_V);
             projectile_transform.translation += transform.up() * 75.0 * GLOBAL_RESCALE_V;
             projectile_transform.rotation = transform.rotation.clone();
-            commands.spawn(AudioBundle {
-                source: asset_server.load(&ship.secondary_weapon.sound_path),
-                ..default()
-            });
+            commands.spawn((
+                AudioBundle {
+                    source: asset_server.load(&ship.secondary_weapon.sound_path),
+                    ..default()
+                },
+                SelfDestruct {
+                    cd_timer: Timer::from_seconds(2.5, TimerMode::Once),
+                },
+            ));
             // Spawn the initial graphic
             commands.spawn((
                 (SpriteBundle {
@@ -122,10 +127,15 @@ pub fn player_weapons_system(
                     .with_scale(GLOBAL_RESCALE_V * 0.5)
                     .with_rotation(Quat::from_rotation_z(aim - PI / 2.0));
             projectile_transform.translation += projectile_transform.up() * 75.0 * GLOBAL_RESCALE_V;
-            commands.spawn(AudioBundle {
-                source: asset_server.load(&ship.tertiary_weapon.sound_path),
-                ..default()
-            });
+            commands.spawn((
+                AudioBundle {
+                    source: asset_server.load(&ship.tertiary_weapon.sound_path),
+                    ..default()
+                },
+                SelfDestruct {
+                    cd_timer: Timer::from_seconds(2.5, TimerMode::Once),
+                },
+            ));
             // Spawn the initial graphic
             commands.spawn((
                 (SpriteBundle {

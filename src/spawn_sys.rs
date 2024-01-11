@@ -97,6 +97,11 @@ pub fn read_script_system(
                 let ship_sprite_path = match ship_type {
                     "picket" => "sprites/ships/picket.png".to_string(),
                     "drone" => "sprites/ships/drone.png".to_string(),
+                    "speedy" => "sprites/ships/speedy.png".to_string(),
+                    "lunker" => "sprites/ships/lunker.png".to_string(),
+                    "mine_layer" => "sprites/ships/mine_layer.png".to_string(),
+                    "rammer" => "sprites/ships/rammer.png".to_string(),
+                    "turret" => "sprites/ships/turret.png".to_string(),
                     _ => "sprites/ships/turret.png".to_string(),
                 };
 
@@ -159,7 +164,7 @@ pub fn read_script_system(
                         commands.spawn((
                             SpriteBundle {
                                 transform: Transform::from_xyz(x, y, 0.0)
-                                    .with_scale(GLOBAL_RESCALE_V),
+                                    .with_scale(GLOBAL_RESCALE_V * 1.5),
                                 texture: asset_server.load(ship_sprite_path),
                                 ..default()
                             },
@@ -177,7 +182,8 @@ pub fn read_script_system(
                         commands.spawn((
                             SpriteBundle {
                                 transform: Transform::from_xyz(x, y, 0.0)
-                                    .with_scale(GLOBAL_RESCALE_V),
+                                    .with_scale(GLOBAL_RESCALE_V)
+                                    .with_rotation(Quat::from_rotation_z(random::<f32>() * 2.0)),
                                 texture: asset_server.load(ship_sprite_path),
                                 ..default()
                             },
@@ -289,10 +295,15 @@ pub fn despawn_dead_system(
         // If an entity's health has dropped to or below 0, despawn it.
         if health.value <= 0.0 {
             if *et == EntityType::Ship || *et == EntityType::Missile {
-                commands.spawn(AudioBundle {
-                    source: asset_server.load("sounds/explosionCrunch_003.ogg"),
-                    ..default()
-                });
+                commands.spawn((
+                    AudioBundle {
+                        source: asset_server.load("sounds/explosionCrunch_003.ogg"),
+                        ..default()
+                    },
+                    SelfDestruct {
+                        cd_timer: Timer::from_seconds(2.5, TimerMode::Once),
+                    },
+                ));
             }
             commands.entity(entity).despawn();
         }

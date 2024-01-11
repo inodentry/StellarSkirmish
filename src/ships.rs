@@ -166,8 +166,8 @@ pub fn load_lunker_ship() -> (
         },
         CollisionBox {
             shape: Shape::Circle,
-            width_radius: 38.0 * GLOBAL_RESCALE_C,
-            height: 38.0 * GLOBAL_RESCALE_C,
+            width_radius: 57.0 * GLOBAL_RESCALE_C,
+            height: 57.0 * GLOBAL_RESCALE_C,
         },
         Health { value: 100.0 },
         Mass { value: 140000.0 },

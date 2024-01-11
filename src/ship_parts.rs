@@ -39,8 +39,8 @@ pub fn load_lunker_torpedo() -> WeaponSystem {
         sprite_path: "sprites/projectiles/spaceMissiles_001.png".to_string(),
         on_spawn_sprite_path: "".to_string(),
         sound_path: "".to_string(),
-        cooldown: 0.5,
-        cd_timer: Timer::from_seconds(2.5, TimerMode::Once),
+        cooldown: 5.0,
+        cd_timer: Timer::from_seconds(5.0, TimerMode::Once),
     }
 }
 
@@ -143,7 +143,7 @@ pub fn load_drone_laser() -> WeaponSystem {
         proj_type: ProjectileType::Laser,
         proj_mass: 0.0,
         dmg_type: DamageType::Radiant,
-        dmg: 1.0,
+        dmg: 2.5,
         sprite_path: "sprites/projectiles/drone_laser.png".to_string(),
         on_spawn_sprite_path: "".to_string(),
         sound_path: "".to_string(),
