@@ -112,7 +112,7 @@ pub fn load_rammer_ship() -> (
         Enemy {},
         load_basic_thruster(),
         Clipping {
-            cd_timer: Timer::from_seconds(0.1, TimerMode::Once),
+            cd_timer: Timer::from_seconds(1.0, TimerMode::Once),
         },
         Drag {
             dampening_factor: 0.995,
