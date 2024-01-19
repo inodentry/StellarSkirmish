@@ -48,7 +48,7 @@ fn main() {
                 spawn_camera_system,
                 setup_background_stars_system.after(spawn_camera_system),
                 spawn_player_system.after(spawn_camera_system),
-                //spawn_asteroid_system.after(spawn_camera_system),
+                spawn_asteroid_system.after(spawn_camera_system),
             ),
         )
         // Register Events
